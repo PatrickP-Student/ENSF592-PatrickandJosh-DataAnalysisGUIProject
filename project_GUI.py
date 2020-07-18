@@ -4,26 +4,36 @@ The purpose of this program is to build the GUI that will read, sort, and analyz
 
 import tkinter as tk
 from tkinter import ttk
-import read_from_db as read
+from read_from_db import *
 
-
-# Define data_types() function which gets the selections from the comboboxes and returns the collection name, to be passed
-# to the read_from_db.py file
 
 def data_types():
-    if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
-        return "CityofCalgary - Traffic Incidents"
-    elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
-        return "CityofCalgary - Traffic Incidents 2"
-    elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
-        return "CityofCalgary - Traffic Incidents 3"
-    elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
-        return "CityofCalgary - Traffic Volumes"
-    elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
-        return "CityofCalgary - Traffic Volumes 2"
-    elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
-        return "CityofCalgary - Traffic Volumes 3"
 
+    if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
+        collection_name = "CityofCalgary - Traffic Incidents"
+        return collection_name
+    elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
+        collection_name = "CityofCalgary - Traffic Incidents 2"
+        return collection_name
+    elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
+        collection_name = "CityofCalgary - Traffic Incidents 3"
+        return collection_name
+    elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
+        collection_name = "CityofCalgary - Traffic Volumes"
+        return collection_name
+    elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
+        collection_name = "CityofCalgary - Traffic Volumes 2"
+        return collection_name
+    elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
+        collection_name = "CityofCalgary - Traffic Volumes 3"
+        return collection_name
+
+def tree_type():
+
+    if type_combo.get() == "Traffic Volume":
+        tree1.grid(row = 0, column = 1, sticky = "nwes")
+    elif type_combo.get() == "Traffic Incidents":
+        tree2.grid(row = 0, column = 1, sticky = "nwes")
 
 window = tk.Tk()
 window.title("Traffic Analysis")
@@ -60,9 +70,58 @@ read_btn = tk.Button(                         # Build Read button
     master = frame_left,
     text = "Read",
     width = 16,
-    command = data_types
+    command = lambda:[data_types(), tree_type()]
 )
 read_btn.grid(row = 2, column = 0, padx = 5, pady = 5)
+
+### TREE1 IS FOR TRAFFIC VOLUME
+#Getting Treeview list
+tree1 = ttk.Treeview(window)
+
+# Creating Columns
+tree1["columns"] = ("the_geom", "year_vol", "shape_leng", "volume")
+
+# Formatting Columns
+tree1.column("#0", width = 100, minwidth = 50)
+tree1.column("the_geom", width = 100, minwidth = 50)
+tree1.column("year_vol", width = 100, minwidth = 50)
+tree1.column("shape_leng", width = 100, minwidth = 50)
+tree1.column("volume", width = 100, minwidth = 50)
+
+tree1.heading("#0", text = "secname", anchor = tk.W)
+tree1.heading("the_geom", text = "the_geom", anchor = tk.W)
+tree1.heading("year_vol", text = "year_vol", anchor = tk.W)
+tree1.heading("shape_leng", text = "shape_leng", anchor = tk.W)
+tree1.heading("volume", text = "volume", anchor = tk.W)
+
+
+### TREE2 IS FOR TRAFFIC INCIDENTS
+#Getting Treeview list
+tree2 = ttk.Treeview(window)
+
+# Creating Columns
+tree2["columns"] = ("DESCRIPTION", "START_DT", "MODIFIED_DT", "QUADRANT", "Longitude", "Latitude", "location", "Count")
+
+# Formatting Columns
+tree2.column("#0", width = 100, minwidth = 50)
+tree2.column("DESCRIPTION", width = 100, minwidth = 50)
+tree2.column("START_DT", width = 100, minwidth = 50)
+tree2.column("MODIFIED_DT", width = 100, minwidth = 50)
+tree2.column("QUADRANT", width = 100, minwidth = 50)
+tree2.column("Longitude", width = 100, minwidth = 50)
+tree2.column("Latitude", width = 100, minwidth = 50)
+tree2.column("location", width = 100, minwidth = 50)
+tree2.column("Count", width = 100, minwidth = 50)
+
+tree2.heading("#0", text = "INCIDENT INFO", anchor = tk.W)
+tree2.heading("DESCRIPTION", text = "DESCRIPTION", anchor = tk.W)
+tree2.heading("START_DT", text = "START_DT", anchor = tk.W)
+tree2.heading("MODIFIED_DT", text = "MODIFIED_DT", anchor = tk.W)
+tree2.heading("QUADRANT", text = "QUADRANT", anchor = tk.W)
+tree2.heading("Longitude", text = "Longitude", anchor = tk.W)
+tree2.heading("Latitude", text = "Latitude", anchor = tk.W)
+tree2.heading("location", text = "location", anchor = tk.W)
+tree2.heading("Count", text = "Count", anchor = tk.W)
 
 
 sort_btn = tk.Button(                         # Build Sort button
@@ -112,7 +171,5 @@ status_box = tk.Label(                           # Build the status message box
 status_box.grid(row = 7, column = 0, padx = 5, pady = 5)
 
 
+
 window.mainloop()
-
-
-
