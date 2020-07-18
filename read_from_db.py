@@ -9,6 +9,8 @@ and perform all processing, sorting, and handling required for use in our progra
 import pymongo
 from pymongo import MongoClient
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
 #******************************************************************************************************#
 
@@ -33,16 +35,8 @@ class DBReader:
         # this removes the obbject _id column MongoDB adds to the document, we will not need this data
         changed_raw = df_traffic_vol_input_raw.drop(columns=['_id'])
 
-        # this sorts the data by descending order of the volume column
-        # this will handle the 2 different naming conventions for the column headers in the different
-        # files being read, ie, lowercase 'volume', and uppercase 'VOLUME'.
-        ## TODO There has got to be a better way to do this....
-        try:
-            temp = changed_raw.sort_values('volume',ascending=False)
-            return temp
-        except KeyError as e:
-            temp = changed_raw.sort_values('VOLUME',ascending=False)
-            return temp
+        return changed_raw
+
     
     def traffic_incidents(self,collection_name):
         # connects to collection holding the 2016 Traffic Volume object
@@ -57,10 +51,14 @@ class DBReader:
         # this removes the obbject _id column MongoDB adds to the document, we will not need this data
         changed_raw = df_traffic_incident_input_raw.drop(columns=['_id'])
 
-        # this sorts the data by descending order of the volume column
-        ## TODO Need to specific correct column header ' ' to sort dataframe by....
-        temp = changed_raw.sort_values('START_DT',ascending=False)
+        return changed_raw
+    
+
+    # this sorts the data by descending order of the volume column
+    def sort(self,data_struct,column):
+        temp = data_struct.sort_values(column,ascending=False)
         return temp
+
 
 class Analyzer:
 
@@ -88,7 +86,7 @@ class Analyzer:
         changed_raw3a = df_t_v_input_raw3a.drop(columns=['_id'])
         temps3a = changed_raw3a['VOLUME'].sum()
 
-        result = self.create_dict( year1a, temps1a, year2a, temps2a, year3a, temps3a)
+        result = self.create_lists(temps1a, temps2a, temps3a)
         return result
     
     #TODO COMPLETE THIS SECTION
@@ -109,17 +107,20 @@ class Analyzer:
         traffic_incident_input_raw = collection3.find_one({})
         
 
-    def create_dict(self,year1,val1,year2,val2,year3,val3):
-        sum_dict = {
-            year1: val1,
-            year2: val2,
-            year3: val3,
-        }
-        return sum_dict
+    def create_lists(self,val1,val2,val3):
+        sum_list = [val1,val2,val3]
+        return sum_list
 
+    #TODO Might need to pass a y-axis label to this as well, based on an if statement
+    def histogram_plot(self,list_x,list_y):
+        y_pos = np.arange(len(list_x))
+        plt.bar(y_pos, list_y, align='center', alpha=0.5)
+        plt.xticks(y_pos, list_x)
+        plt.gcf().axes[0].yaxis.get_major_formatter().set_scientific(False)
+        plt.xlabel('Years')
+        plt.ylabel('TBD*****')
+        plt.show()
 
-    # def histogram_plot(self)
-    
 
 if __name__ == "__main__":
     ## TODO Maybe this should go in an __init__ ??
@@ -137,13 +138,26 @@ if __name__ == "__main__":
     ## ie, if user selects traffic volume and year 2017, we will need to pass "CityofCalgary - Traffic Volumes"
     ## collection to this argument in order to fetch the correct data from the db
     # this will pass the collection to be read from (off of the db) specific to what the user requests
+    # collection_name = "CityofCalgary - Traffic Volumes 3"
+    # temp_raw = db_reader.traffic_volumes(collection_name)
+    # # print(temp_raw)
+
+    # #if sort button is clicked
+    # if collection_name == "CityofCalgary - Traffic Volumes" or collection_name == "CityofCalgary - Traffic Volumes 2":
+    #     temp_sorted = db_reader.sort(temp_raw,'volume')
+    # if collection_name == "CityofCalgary - Traffic Volumes 3":
+    #     temp_sorted = db_reader.sort(temp_raw,'VOLUME')
+    # ##TODO Need to specific correct column header ' ' to sort dataframe by....
+    # if collection_name == "CityofCalgary - Traffic Incidents" or collection_name == "CityofCalgary - Traffic Incidents2" or collection_name == "CityofCalgary - Traffic Incidents 3":
+    #     temp_sorted = db_reader.sory(temp_raw,'START_DT')
     
-    # temp = db_reader.traffic_volumes("CityofCalgary - Traffic Volumes 3")
+    # print(temp_sorted)
+
+    # temp = db_reader.traffic_incidents("CityofCalgary - Traffic Incidents")
     # print(temp)
-    
-    temp = db_reader.traffic_incidents("CityofCalgary - Traffic Incidents")
-    print(temp)
 
     file_analyzer = Analyzer()
     other = file_analyzer.read_all_traffic_volumes()
     print(other)
+    years = ["2016", "2017", "2018"]
+    file_analyzer.histogram_plot(years, other)
