@@ -75,12 +75,12 @@ class DBReader:
     # dataframe pandas object with the new dataframe grouping
     def group_by_count(self,data_struct,column):
         wat = data_struct.drop_duplicates(subset="INCIDENT INFO")   # drops duplicate rows
-        wat = wat.drop('id', axis=1)    # drops the id (object id from MongoDB) column
+        # wat = wat.drop(columns=['_id'])    # drops the id (object id from MongoDB) column
         wat = wat.drop('Count', axis=1) #drops the Count column
         wat = wat.sort_values('INCIDENT INFO', ascending=True)
-        temp1 = data_struct.drop('id', axis=1)
-        temp2 = temp1.groupby(['INCIDENT INFO'])[["Count"]].sum()
-        temp = pd.merge(wat,temp2,how='right', on='INCIDENT INFO')
+        # temp1 = data_struct.drop('id', axis=1)
+        temp1 = data_struct.groupby(['INCIDENT INFO'])[["Count"]].sum()
+        temp = pd.merge(wat,temp1,how='right', on='INCIDENT INFO')
         return temp
     
     # This function will return the number of incidents at the location with the maximum incidents
@@ -99,6 +99,10 @@ class Analyzer:
     # This will read all of the traffic volume documents from the database and sum the volumes for
     # each year. It will return a list of these volume sums.
     def read_all_traffic_volumes(self):
+        # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
+        cluster = pymongo.MongoClient("mongodb+srv://User_1:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
+        # clarifies database that will be used for this application
+        db = cluster["ENSF592-DataCity"]
 
         # This will read the 2016 traffic volume document from the db, convert it to a pandas dataframe
         # object, remove the _id column MongoDB adds (we won't need to work or display this column),
@@ -138,6 +142,10 @@ class Analyzer:
     # This will read all of the traffic incidents documents from the database and sum the incidnets for
     # each year. It will return a list of these incident sums.
     def read_all_traffic_incidents(self):
+        # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
+        cluster = pymongo.MongoClient("mongodb+srv://User_1:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
+        # clarifies database that will be used for this application
+        db = cluster["ENSF592-DataCity"]
 
         # This will read the 2016 traffic incidents document from the db, convert it to a pandas dataframe
         # object, remove the _id column MongoDB adds (we won't need to work or display this column),

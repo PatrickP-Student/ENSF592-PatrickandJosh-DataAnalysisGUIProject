@@ -38,6 +38,49 @@ class GUI:
             temp = reader_obj.traffic_volumes(collection_name)
             self.tree_insert(temp)
 
+    ## TODO Figure out how to pass the temp objects created and held in the data_types read function
+    ## , might need to also make the object instance accessible between functions as well
+    def data_sort(self):
+        reader_obj = rfd.DBReader() # Object used to do things
+        if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
+            collection_name = "CityofCalgary - Traffic Incidents"
+            column_name = "Count"
+            temp2 = reader_obj.traffic_incidents(collection_name)
+            temp1 = reader_obj.group_by_count(temp2,column_name)
+            temp = reader_obj.sort(temp1,column_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
+            collection_name = "CityofCalgary - Traffic Incidents 2"
+            column_name = "Count"
+            temp2 = reader_obj.traffic_incidents(collection_name)
+            temp1 = reader_obj.group_by_count(temp2,column_name)
+            temp = reader_obj.sort(temp1,column_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
+            collection_name = "CityofCalgary - Traffic Incidents 3"
+            column_name = "Count"
+            temp2 = reader_obj.traffic_incidents(collection_name)
+            temp1 = reader_obj.group_by_count(temp2,column_name)
+            temp = reader_obj.sort(temp1,column_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
+            collection_name = "CityofCalgary - Traffic Volumes"
+            column_name = "volume"
+            temp1 = reader_obj.traffic_incidents(collection_name)
+            temp = reader_obj.sort(temp1,column_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
+            collection_name = "CityofCalgary - Traffic Volumes 2"
+            column_name = "volume"
+            temp1 = reader_obj.traffic_incidents(collection_name)
+            temp = reader_obj.sort(temp1,column_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
+            collection_name = "CityofCalgary - Traffic Volumes 3"
+            column_name = "VOLUME"
+            temp1 = reader_obj.traffic_incidents(collection_name)
+            temp = reader_obj.sort(temp1,column_name)
+            self.tree_insert(temp)
 
     # Specifies column layout and headers depending on the combobox selections
     def tree_insert(self,df): #df is the data frame object
@@ -49,12 +92,10 @@ class GUI:
 
         df_col = df.columns.values
         tree["columns"] = df_col
-        print(df_col)
         counter = len(df) 
-
         rowLabels = df.index.tolist()
         for x in range(len(df_col)):
-            tree.column(x, width=100)
+            tree.column(x, width=80)
             tree.heading(x, text=df_col[x])
             for i in range(counter):
                 tree.insert('', i, text=rowLabels[i], values=df.iloc[i,:].tolist())
@@ -91,7 +132,7 @@ if __name__ == "__main__":
     frame_right = tk.Frame(master=window, width=1000)  # build the right frame that will hold all the data
     frame_right.columnconfigure(1, weight=1)
     frame_right.rowconfigure(0, weight=1)
-    frame_right.grid(column=1)
+    frame_right.grid(column=1, sticky="nsew")
 
     type_combo = ttk.Combobox(
         values=["Traffic Volume", "Traffic Incidents"],  # Data type combobox
@@ -207,7 +248,8 @@ if __name__ == "__main__":
         master=frame_left,
         text="Sort",
         activebackground="tomato",
-        width=16
+        width=16,
+        command= app.data_sort
     )
     sort_btn.grid(row=3, column=0, padx=5, pady=5)
 
