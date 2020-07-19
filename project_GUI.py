@@ -7,6 +7,7 @@ from tkinter import ttk
 from read_from_db import *
 import read_from_db as rfd
 
+
 # Returns collection_name string for read_from_db's method parameters based on the selection of the comboboxes
 def data_types():
     if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
@@ -35,28 +36,23 @@ def tree_insert():
         tree1.grid(row=0, column=1, sticky="nwes")
         tree1.insert("", 0, text="First Row", values=["B1", "C1", "D1", "E1"])
         print(str(data_types()))
-    elif type_combo.get() == "Traffic Incidents":
+    elif type_combo.get() == "Traffic Incidents" and (year_combo.get() == "2016" or year_combo.get == "2017"):
         tree2.grid(row=0, column=1, sticky="nwes")
         print(str(data_types()))
-
-# def data_insert():
-#
-#     if type_combo.get() == "Traffic Volume":
-#         tree1.insert("",0,text="First Row", values = ["B1","C1","D1","E1"])
-
-        # for i in range(5):
-        #     for j in db_Reader.traffic_volumes(str(data_types()))[i]:
-        #         tree1.insert("", 1, i)
+    elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
+        tree3.grid(row=0, column=1, sticky="nwes")
+        print(str(data_types()))
 
 
 if __name__ == "__main__":
     # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
     cluster = pymongo.MongoClient(
-        "mongodb+srv://User_2:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
-    # clairifies database that will be used for this application
+        "mongodb+srv://User_2:1234@cluster-project."
+        "mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
+    # clarifies database that will be used for this application
+
     db = cluster["ENSF592-DataCity"]
     db_Reader = DBReader()
-
 
     window = tk.Tk()
     window.title("Traffic Analysis")
@@ -66,7 +62,7 @@ if __name__ == "__main__":
     frame_left = tk.Frame(master=window, width=250, height=400,
                           bg="gray55")  # build the left frame that will hold all the buttons
     frame_left.columnconfigure(0, weight=1)
-    frame_left.rowconfigure([0,7], weight=1)
+    frame_left.rowconfigure([0, 7], weight=1)
     frame_left.grid(column=0, sticky="nsew")
 
     frame_right = tk.Frame(master=window, width=1000)  # build the right frame that will hold all the data
@@ -89,13 +85,14 @@ if __name__ == "__main__":
         width=16
     )
     year_combo.grid(row=1, column=0, padx=5, pady=5)
+    print(db_Reader.traffic_volumes(data_types()))
 
     read_btn = tk.Button(  # Build Read button
         relief="solid",
         master=frame_left,
         text="Read",
         width=16,
-        activebackground = "tomato",
+        activebackground="tomato",
         command=data_types and tree_insert
     )
     read_btn.grid(row=2, column=0, padx=5, pady=5)
@@ -120,12 +117,13 @@ if __name__ == "__main__":
     tree1.heading("shape_leng", text="shape_leng", anchor=tk.W)
     tree1.heading("volume", text="volume", anchor=tk.W)
 
-    ### TREE2 IS FOR TRAFFIC INCIDENTS
+    ### TREE2 IS FOR TRAFFIC INCIDENTS 2016 and 2017
     # Getting Treeview list For Traffic Incidents
     tree2 = ttk.Treeview(window)
 
     # Creating Columns
-    tree2["columns"] = ("DESCRIPTION", "START_DT", "MODIFIED_DT", "QUADRANT", "Longitude", "Latitude", "location", "Count")
+    tree2["columns"] = (
+        "DESCRIPTION", "START_DT", "MODIFIED_DT", "QUADRANT", "Longitude", "Latitude", "location", "Count")
 
     # Formatting Columns
     tree2.column("#0", width=80, minwidth=50)
@@ -147,6 +145,37 @@ if __name__ == "__main__":
     tree2.heading("Latitude", text="Latitude", anchor=tk.W)
     tree2.heading("location", text="location", anchor=tk.W)
     tree2.heading("Count", text="Count", anchor=tk.W)
+
+    ### TREE3 IS FOR TRAFFIC INCIDENTS 2018
+    # Getting Treeview list For Traffic Incidents
+    tree3 = ttk.Treeview(window)
+
+    # Creating Columns
+    tree3["columns"] = (
+        "DESCRIPTION", "START_DT", "MODIFIED_DT", "QUADRANT", "Longitude", "Latitude", "location", "Count", "id")
+
+    # Formatting Columns
+    tree3.column("#0", width=80, minwidth=50)
+    tree3.column("DESCRIPTION", width=80, minwidth=50)
+    tree3.column("START_DT", width=80, minwidth=50)
+    tree3.column("MODIFIED_DT", width=80, minwidth=50)
+    tree3.column("QUADRANT", width=80, minwidth=50)
+    tree3.column("Longitude", width=80, minwidth=50)
+    tree3.column("Latitude", width=80, minwidth=50)
+    tree3.column("location", width=80, minwidth=50)
+    tree3.column("Count", width=80, minwidth=50)
+    tree3.column("id", width=80, minwidth=50)
+
+    tree3.heading("#0", text="INCIDENT INFO", anchor=tk.W)
+    tree3.heading("DESCRIPTION", text="DESCRIPTION", anchor=tk.W)
+    tree3.heading("START_DT", text="START_DT", anchor=tk.W)
+    tree3.heading("MODIFIED_DT", text="MODIFIED_DT", anchor=tk.W)
+    tree3.heading("QUADRANT", text="QUADRANT", anchor=tk.W)
+    tree3.heading("Longitude", text="Longitude", anchor=tk.W)
+    tree3.heading("Latitude", text="Latitude", anchor=tk.W)
+    tree3.heading("location", text="location", anchor=tk.W)
+    tree3.heading("Count", text="Count", anchor=tk.W)
+    tree3.heading("id", text="id", anchor=tk.W)
 
     sort_btn = tk.Button(  # Build Sort button
         relief="solid",
@@ -194,3 +223,4 @@ if __name__ == "__main__":
     status_box.grid(row=7, column=0, padx=5, pady=5)
 
     window.mainloop()
+
