@@ -64,14 +64,24 @@ class DBReader:
     
     # This function will group the data rows by arguement passed to it and will return a 
     # dataframe pandas object with the new dataframe grouping
-    ######## TODO This code only produces 2 columns currently, the INCIDENT INFO, and the sum 
-    # of incident count grouped by the INCIDENT INFO cloumn data. Need to append back to original
-    # df.
     def group_by_count(self,data_struct,column):
-        wat = data_struct.drop(columns=['id'])
-        temp1 = wat.groupby('INCIDENT INFO')
-        temp2 = temp1.sum()
-        temp = temp2.drop(columns=['Longitude','Latitude'])
+        wat = data_struct.drop_duplicates(subset="INCIDENT INFO")   # drops duplicate rows
+        wat = wat.drop('id', axis=1)    # drops the id (object id from MongoDB) column
+        wat = wat.drop('Count', axis=1) #drops the Count column
+        wat = wat.sort_values('INCIDENT INFO', ascending=True)
+        temp1 = data_struct.drop('id', axis=1)
+        temp2 = temp1.groupby(['INCIDENT INFO'])[["Count"]].sum()
+        temp = pd.merge(wat,temp2,how='right', on='INCIDENT INFO')
+        return temp
+    
+    # This function will return the number of incidents at the location with the maximum incidents
+    def get_max_count(self,data_struct):
+        temp = data_struct['Count'].max()
+        return temp
+    
+    # This function will return the coordinates for the location that the maximum number of incidents occurs at
+    def get_max_coords(self,data_struct,max_count):
+        temp = data_struct.loc[data_struct.Count == max_count,'location'].tolist()[0]
         return temp
 
 
@@ -188,7 +198,8 @@ if __name__ == "__main__":
     # this will pass the collection to be read from (off of the db) specific to what the user requests
     collection_name = "CityofCalgary - Traffic Incidents 3"
     temp_raw = db_reader.traffic_volumes(collection_name)
-    print(temp_raw)
+    # print("Raw input data:")
+    # print(temp_raw)
 
     # if sort button is clicked
     # if collection_name == "CityofCalgary - Traffic Volumes" or collection_name == "CityofCalgary - Traffic Volumes 2":
@@ -200,10 +211,15 @@ if __name__ == "__main__":
     #      temp_sorted = db_reader.sort(group_by_count(temp_raw,'INCIDENT INFO'),'Count')
     
     oof = db_reader.group_by_count(temp_raw,'INCIDENT INFO')
-    print(oof)
-    print(db_reader.sort(oof,'Count'))
-  
+    # print("Grouped by Count Return:")
+    # print(oof)
+    # print("Sorted Counted :")
+    eef = db_reader.sort(oof,'Count')
 
+    max_accidents = db_reader.get_max_count(eef)
+    max_accidents_coords = db_reader.get_max_coords(eef,max_accidents)
+    print(max_accidents_coords)
+  
     # temp = db_reader.traffic_incidents("CityofCalgary - Traffic Incidents")
     # print(temp)
 
