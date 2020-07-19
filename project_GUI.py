@@ -4,63 +4,86 @@ The purpose of this program is to build the GUI that will read, sort, and analyz
 
 import tkinter as tk
 from tkinter import ttk
-from read_from_db import *
 import read_from_db as rfd
+import pymongo
+from pymongo import MongoClient
+
+class GUI:
+
+    # Returns collection_name string for read_from_db's method parameters based on the selection of the comboboxes
+    def data_types(self):
+        reader_obj = rfd.DBReader() # Object used to do things
+        if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
+            collection_name = "CityofCalgary - Traffic Incidents"
+            temp = reader_obj.traffic_incidents(collection_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
+            collection_name = "CityofCalgary - Traffic Incidents 2"
+            temp = reader_obj.traffic_incidents(collection_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
+            collection_name = "CityofCalgary - Traffic Incidents 3"
+            temp = reader_obj.traffic_incidents(collection_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
+            collection_name = "CityofCalgary - Traffic Volumes"
+            temp = reader_obj.traffic_volumes(collection_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
+            collection_name = "CityofCalgary - Traffic Volumes 2"
+            temp = reader_obj.traffic_volumes(collection_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
+            collection_name = "CityofCalgary - Traffic Volumes 3"
+            temp = reader_obj.traffic_volumes(collection_name)
+            self.tree_insert(temp)
 
 
-# Returns collection_name string for read_from_db's method parameters based on the selection of the comboboxes
-def data_types():
-    if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
-        collection_name = "CityofCalgary - Traffic Incidents"
-        return collection_name
-    elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
-        collection_name = "CityofCalgary - Traffic Incidents 2"
-        return collection_name
-    elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
-        collection_name = "CityofCalgary - Traffic Incidents 3"
-        return collection_name
-    elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
-        collection_name = "CityofCalgary - Traffic Volumes"
-        return collection_name
-    elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
-        collection_name = "CityofCalgary - Traffic Volumes 2"
-        return collection_name
-    elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
-        collection_name = "CityofCalgary - Traffic Volumes 3"
-        return collection_name
+    # Specifies column layout and headers depending on the combobox selections
+    def tree_insert(self,df): #df is the data frame object
+        # if type_combo.get() == "Traffic Volume":
+        #     tree1.grid(row=0, column=1, sticky="nwes")
+        #     tree1.insert("", 0, text="First Row", values=["B1", "C1", "D1", "E1"])
 
 
-# Specifies column layout and headers depending on the combobox selections
-def tree_insert():
-    if type_combo.get() == "Traffic Volume":
-        tree1.grid(row=0, column=1, sticky="nwes")
-        tree1.insert("", 0, text="First Row", values=["B1", "C1", "D1", "E1"])
-        print(str(data_types()))
-    elif type_combo.get() == "Traffic Incidents" and (year_combo.get() == "2016" or year_combo.get == "2017"):
-        tree2.grid(row=0, column=1, sticky="nwes")
-        print(str(data_types()))
-    elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
-        tree3.grid(row=0, column=1, sticky="nwes")
-        print(str(data_types()))
+
+        df_col = df.columns.values
+        tree["columns"] = df_col
+        print(df_col)
+        counter = len(df) 
+
+        rowLabels = df.index.tolist()
+        for x in range(len(df_col)):
+            tree.column(x, width=100)
+            tree.heading(x, text=df_col[x])
+            for i in range(counter):
+                tree.insert('', i, text=rowLabels[i], values=df.iloc[i,:].tolist())
+        
+        tree.grid(row=0, column=1, sticky = "nsew")
+
+        # elif type_combo.get() == "Traffic Incidents" and (year_combo.get() == "2016" or year_combo.get == "2017"):
+        #     tree2.grid(row=0, column=1, sticky="nwes")
+            
+        # elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
+        #     tree3.grid(row=0, column=1, sticky="nwes")
+        
 
 
 if __name__ == "__main__":
-    # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
-    cluster = pymongo.MongoClient(
-        "mongodb+srv://User_2:1234@cluster-project."
-        "mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
-    # clarifies database that will be used for this application
+    # # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
+    # cluster = pymongo.MongoClient("mongodb+srv://User_1:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
+    # # clarifies database that will be used for this application
+    # db = cluster["ENSF592-DataCity"]
 
-    db = cluster["ENSF592-DataCity"]
-    db_Reader = DBReader()
+    # Instantiate the GUI class
+    app = GUI()
 
     window = tk.Tk()
     window.title("Traffic Analysis")
     window.columnconfigure([0, 1], weight=1)
     window.rowconfigure(0, weight=1)
 
-    frame_left = tk.Frame(master=window, width=250, height=400,
-                          bg="gray55")  # build the left frame that will hold all the buttons
+    frame_left = tk.Frame(master=window, width=250, height=400, bg="gray55")  # build the left frame that will hold all the buttons
     frame_left.columnconfigure(0, weight=1)
     frame_left.rowconfigure([0, 7], weight=1)
     frame_left.grid(column=0, sticky="nsew")
@@ -85,7 +108,7 @@ if __name__ == "__main__":
         width=16
     )
     year_combo.grid(row=1, column=0, padx=5, pady=5)
-    print(db_Reader.traffic_volumes(data_types()))
+    # print(db_Reader.traffic_volumes(data_types()))
 
     read_btn = tk.Button(  # Build Read button
         relief="solid",
@@ -93,10 +116,12 @@ if __name__ == "__main__":
         text="Read",
         width=16,
         activebackground="tomato",
-        command=data_types and tree_insert
+        command= app.data_types
     )
     read_btn.grid(row=2, column=0, padx=5, pady=5)
 
+
+    tree = ttk.Treeview(window)
     ### TREE1 IS FOR TRAFFIC VOLUME
     # Getting Treeview list for Traffic Volume
     tree1 = ttk.Treeview(window)

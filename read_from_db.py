@@ -22,9 +22,14 @@ import numpy as np
 
 class DBReader:
 
+
     # This returns the raw csv data for the traffic volumes files (unsorted) from the db in 
     # the form of a dataframe pandas object
     def traffic_volumes(self,collection_name):
+        # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
+        cluster = pymongo.MongoClient("mongodb+srv://User_1:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
+        # clarifies database that will be used for this application
+        db = cluster["ENSF592-DataCity"]
         # connects to collection holding the Traffic Volume document
         collection = db[collection_name]
 
@@ -42,6 +47,10 @@ class DBReader:
     # This returns the raw csv data for the traffic incidents files (unsorted) from the db in 
     # the form of a dataframe pandas object
     def traffic_incidents(self,collection_name):
+        # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
+        cluster = pymongo.MongoClient("mongodb+srv://User_1:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
+        # clarifies database that will be used for this application
+        db = cluster["ENSF592-DataCity"]
         # connects to collection holding the Traffic Incident document
         collection = db[collection_name]
 
@@ -181,55 +190,55 @@ class Analyzer:
         plt.show()                  # makes the chart appear on screen
 
 
-if __name__ == "__main__":
-    # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
-    cluster = pymongo.MongoClient("mongodb+srv://User_1:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
-    #clairifies database that will be used for this application
-    db = cluster["ENSF592-DataCity"]
+# if __name__ == "__main__":
+#     # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
+#     cluster = pymongo.MongoClient("mongodb+srv://User_1:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
+#     #clairifies database that will be used for this application
+#     db = cluster["ENSF592-DataCity"]
 
-    ####################################################################################################
+#     ####################################################################################################
 
-    # Instantiate the DBReader class
-    db_reader = DBReader()
+#     # Instantiate the DBReader class
+#     db_reader = DBReader()
 
-    ## TODO will need to have the selection the user makes populate this function parameter
-    ## ie, if user selects traffic volume and year 2017, we will need to pass "CityofCalgary - Traffic Volumes"
-    ## collection to this argument in order to fetch the correct data from the db
-    # this will pass the collection to be read from (off of the db) specific to what the user requests
-    collection_name = "CityofCalgary - Traffic Incidents 3"
-    temp_raw = db_reader.traffic_volumes(collection_name)
-    # print("Raw input data:")
-    # print(temp_raw)
+#     ## TODO will need to have the selection the user makes populate this function parameter
+#     ## ie, if user selects traffic volume and year 2017, we will need to pass "CityofCalgary - Traffic Volumes"
+#     ## collection to this argument in order to fetch the correct data from the db
+#     # this will pass the collection to be read from (off of the db) specific to what the user requests
+#     collection_name = "CityofCalgary - Traffic Incidents 3"
+#     temp_raw = db_reader.traffic_volumes(collection_name)
+#     # print("Raw input data:")
+#     # print(temp_raw)
 
-    # if sort button is clicked
-    # if collection_name == "CityofCalgary - Traffic Volumes" or collection_name == "CityofCalgary - Traffic Volumes 2":
-    #     temp_sorted = db_reader.sort(temp_raw,'volume')
-    # if collection_name == "CityofCalgary - Traffic Volumes 3":
-    #     temp_sorted = db_reader.sort(temp_raw,'VOLUME')
-    # if collection_name == "CityofCalgary - Traffic Incidents" or collection_name == "CityofCalgary - Traffic Incidents2" or collection_name == "CityofCalgary - Traffic Incidents 3":
-    # #TODO Need to create a grouping function here for incidents and call it with temp_raw
-    #      temp_sorted = db_reader.sort(group_by_count(temp_raw,'INCIDENT INFO'),'Count')
+#     # if sort button is clicked
+#     # if collection_name == "CityofCalgary - Traffic Volumes" or collection_name == "CityofCalgary - Traffic Volumes 2":
+#     #     temp_sorted = db_reader.sort(temp_raw,'volume')
+#     # if collection_name == "CityofCalgary - Traffic Volumes 3":
+#     #     temp_sorted = db_reader.sort(temp_raw,'VOLUME')
+#     # if collection_name == "CityofCalgary - Traffic Incidents" or collection_name == "CityofCalgary - Traffic Incidents2" or collection_name == "CityofCalgary - Traffic Incidents 3":
+#     # #TODO Need to create a grouping function here for incidents and call it with temp_raw
+#     #      temp_sorted = db_reader.sort(group_by_count(temp_raw,'INCIDENT INFO'),'Count')
     
-    oof = db_reader.group_by_count(temp_raw,'INCIDENT INFO')
-    # print("Grouped by Count Return:")
-    # print(oof)
-    # print("Sorted Counted :")
-    eef = db_reader.sort(oof,'Count')
+#     oof = db_reader.group_by_count(temp_raw,'INCIDENT INFO')
+#     # print("Grouped by Count Return:")
+#     # print(oof)
+#     # print("Sorted Counted :")
+#     eef = db_reader.sort(oof,'Count')
 
-    max_accidents = db_reader.get_max_count(eef)
-    max_accidents_coords = db_reader.get_max_coords(eef,max_accidents)
-    print(max_accidents_coords)
+#     max_accidents = db_reader.get_max_count(eef)
+#     max_accidents_coords = db_reader.get_max_coords(eef,max_accidents)
+#     print(max_accidents_coords)
   
-    # temp = db_reader.traffic_incidents("CityofCalgary - Traffic Incidents")
-    # print(temp)
+#     # temp = db_reader.traffic_incidents("CityofCalgary - Traffic Incidents")
+#     # print(temp)
 
-    # file_analyzer = Analyzer()
+#     # file_analyzer = Analyzer()
 
-    # other = file_analyzer.read_all_traffic_volumes()
-    # print(other)
-    # years = ["2016", "2017", "2018"]
-    # file_analyzer.bar_plot(years, other,"Total Traffic Volumes","Calgary Traffic Volume Counts")
+#     # other = file_analyzer.read_all_traffic_volumes()
+#     # print(other)
+#     # years = ["2016", "2017", "2018"]
+#     # file_analyzer.bar_plot(years, other,"Total Traffic Volumes","Calgary Traffic Volume Counts")
 
-    # other1 = file_analyzer.read_all_traffic_incidents()
-    # print(other1)
-    # file_analyzer.bar_plot(years, other1,"Total Traffic Incidents","Calgary Traffic Incident Counts")
+#     # other1 = file_analyzer.read_all_traffic_incidents()
+#     # print(other1)
+#     # file_analyzer.bar_plot(years, other1,"Total Traffic Incidents","Calgary Traffic Incident Counts")
