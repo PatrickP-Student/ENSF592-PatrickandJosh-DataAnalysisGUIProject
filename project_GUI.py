@@ -7,6 +7,7 @@ from tkinter import ttk
 from read_from_db import *
 
 
+# Returns collection_name string for read_from_db's method parameters based on the selection of the comboboxes
 def data_types():
     if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
         collection_name = "CityofCalgary - Traffic Incidents"
@@ -28,6 +29,7 @@ def data_types():
         return collection_name
 
 
+# Specifies column layout and headers depending on the combobox selections
 def tree_type():
     if type_combo.get() == "Traffic Volumes":
         tree1.grid(row=0, column=1, sticky="nwes")
