@@ -22,8 +22,10 @@ import numpy as np
 
 class DBReader:
 
+    # This returns the raw csv data for the traffic volumes files (unsorted) from the db in 
+    # the form of a dataframe pandas object
     def traffic_volumes(self,collection_name):
-        # connects to collection holding the 2016 Traffic Volume object
+        # connects to collection holding the Traffic Volume document
         collection = db[collection_name]
 
         # this reads the document from the db
@@ -37,9 +39,10 @@ class DBReader:
 
         return changed_raw
 
-    
+    # This returns the raw csv data for the traffic incidents files (unsorted) from the db in 
+    # the form of a dataframe pandas object
     def traffic_incidents(self,collection_name):
-        # connects to collection holding the 2016 Traffic Volume object
+        # connects to collection holding the Traffic Incident document
         collection = db[collection_name]
 
         # this reads the document from the db
@@ -54,17 +57,33 @@ class DBReader:
         return changed_raw
     
 
-    # this sorts the data by descending order of the volume column
+    # This function sorts the data by descending order of the volume column (highest is top of column)
     def sort(self,data_struct,column):
         temp = data_struct.sort_values(column,ascending=False)
+        return temp
+    
+    # This function will group the data rows by arguement passed to it and will return a 
+    # dataframe pandas object with the new dataframe grouping
+    ######## TODO This code only produces 2 columns currently, the INCIDENT INFO, and the sum 
+    # of incident count grouped by the INCIDENT INFO cloumn data. Need to append back to original
+    # df.
+    def group_by_count(self,data_struct,column):
+        wat = data_struct.drop(columns=['id'])
+        temp1 = wat.groupby('INCIDENT INFO')
+        temp2 = temp1.sum()
+        temp = temp2.drop(columns=['Longitude','Latitude'])
         return temp
 
 
 class Analyzer:
 
+    # This will read all of the traffic volume documents from the database and sum the volumes for
+    # each year. It will return a list of these volume sums.
     def read_all_traffic_volumes(self):
-        #This is for traffic volumes
 
+        # This will read the 2016 traffic volume document from the db, convert it to a pandas dataframe
+        # object, remove the _id column MongoDB adds (we won't need to work or display this column),
+        # and sum the column labeled 'volume'.
         year1a = "2016"
         collection1a = db["CityofCalgary - Traffic Volumes"]
         t_v_input_raw1a = collection1a.find_one({})
@@ -72,6 +91,9 @@ class Analyzer:
         changed_raw1a = df_t_v_input_raw1a.drop(columns=['_id'])
         temps1a = changed_raw1a['volume'].sum()
 
+        # This will read the 2017 traffic volume document from the db, convert it to a pandas dataframe
+        # object, remove the _id column MongoDB adds (we won't need to work or display this column),
+        # and sum the column labeled 'volume'.
         year2a = "2017"
         collection2a = db["CityofCalgary - Traffic Volumes 2"]
         t_v_input_raw2a = collection2a.find_one({})
@@ -79,6 +101,9 @@ class Analyzer:
         changed_raw2a = df_t_v_input_raw2a.drop(columns=['_id'])
         temps2a = changed_raw2a['volume'].sum()
 
+        # This will read the 2018 traffic volume document from the db, convert it to a pandas dataframe
+        # object, remove the _id column MongoDB adds (we won't need to work or display this column),
+        # and sum the column labeled 'VOLUME'.
         year3a = "2018"
         collection3a = db["CityofCalgary - Traffic Volumes 3"]
         t_v_input_raw3a = collection3a.find_one({})
@@ -86,44 +111,67 @@ class Analyzer:
         changed_raw3a = df_t_v_input_raw3a.drop(columns=['_id'])
         temps3a = changed_raw3a['VOLUME'].sum()
 
+        # This calls the creat_lists function to create a list of the 3 sum values calculated above
+        # representing the traffic volumes for 2016, 2017, and 2018.
         result = self.create_lists(temps1a, temps2a, temps3a)
         return result
     
-    #TODO COMPLETE THIS SECTION
+    # This will read all of the traffic incidents documents from the database and sum the incidnets for
+    # each year. It will return a list of these incident sums.
     def read_all_traffic_incidents(self):
-        #This is for traffic Incidents
 
+        # This will read the 2016 traffic incidents document from the db, convert it to a pandas dataframe
+        # object, remove the _id column MongoDB adds (we won't need to work or display this column),
+        # and sum the column labeled 'Count'.
         collection1 = db["CityofCalgary - Traffic Incidents"]
         t_i_input_raw1 = collection1.find_one({})
         df_t_i_input_raw1 = pd.DataFrame(t_i_input_raw1)
         changed_raw1 = df_t_i_input_raw1.drop(columns=['_id'])
-        #TODO Specify the axis name to sum
-        changed_raw1.sum(axis = 'TBD')
+        temps1 = changed_raw1['Count'].sum()
 
+        # This will read the 2017 traffic incidents document from the db, convert it to a pandas dataframe
+        # object, remove the _id column MongoDB adds (we won't need to work or display this column),
+        # and sum the column labeled 'Count'.
         collection2 = db["CityofCalgary - Traffic Incidents 2"]
-        traffic_incident_input_raw = collection2.find_one({})
+        t_i_input_raw2 = collection2.find_one({})
+        df_t_i_input_raw2 = pd.DataFrame(t_i_input_raw2)
+        changed_raw2 = df_t_i_input_raw2.drop(columns=['_id'])
+        temps2 = changed_raw2['Count'].sum()
 
+        # This will read the 2018 traffic incidents document from the db, convert it to a pandas dataframe
+        # object, remove the _id column MongoDB adds (we won't need to work or display this column),
+        # and sum the column labeled 'Count'.
         collection3 = db["CityofCalgary - Traffic Incidents 3"]
-        traffic_incident_input_raw = collection3.find_one({})
-        
+        t_i_input_raw3 = collection3.find_one({})
+        df_t_i_input_raw3 = pd.DataFrame(t_i_input_raw3)
+        changed_raw3 = df_t_i_input_raw3.drop(columns=['_id'])
+        temps3 = changed_raw3['Count'].sum()
 
+        # This calls the creat_lists function to create a list of the 3 sum values calculated above
+        # representing the traffic incident counts for 2016, 2017, and 2018.
+        result = self.create_lists(temps1, temps2, temps3)
+        return result
+        
+    # This function will accept three values and create a list of those 3 values.
     def create_lists(self,val1,val2,val3):
         sum_list = [val1,val2,val3]
         return sum_list
 
-    #TODO Might need to pass a y-axis label to this as well, based on an if statement
-    def histogram_plot(self,list_x,list_y):
+    # This function will take 2 lists (representing sums of counts for 2016, 2017, and 2018), a y_axis
+    # label (as the dependent variables will be different from the constant x_axis points (years)), and
+    # a chart title, and will create a bar graph using the list contents provided 
+    def bar_plot(self,list_x,list_y,y_axis_label,title):
         y_pos = np.arange(len(list_x))
-        plt.bar(y_pos, list_y, align='center', alpha=0.5)
+        plt.bar(y_pos, list_y, width=0.5, align='center')
         plt.xticks(y_pos, list_x)
         plt.gcf().axes[0].yaxis.get_major_formatter().set_scientific(False)
-        plt.xlabel('Years')
-        plt.ylabel('TBD*****')
-        plt.show()
+        plt.xlabel('Years')         # this x_axis will not change
+        plt.ylabel(y_axis_label)    # y_axis_label to be passed by object calling the function
+        plt.title(title)            # title to be passed by object calling the function
+        plt.show()                  # makes the chart appear on screen
 
 
 if __name__ == "__main__":
-    ## TODO Maybe this should go in an __init__ ??
     # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
     cluster = pymongo.MongoClient("mongodb+srv://User_1:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
     #clairifies database that will be used for this application
@@ -138,26 +186,34 @@ if __name__ == "__main__":
     ## ie, if user selects traffic volume and year 2017, we will need to pass "CityofCalgary - Traffic Volumes"
     ## collection to this argument in order to fetch the correct data from the db
     # this will pass the collection to be read from (off of the db) specific to what the user requests
-    # collection_name = "CityofCalgary - Traffic Volumes 3"
-    # temp_raw = db_reader.traffic_volumes(collection_name)
-    # # print(temp_raw)
+    collection_name = "CityofCalgary - Traffic Incidents 3"
+    temp_raw = db_reader.traffic_volumes(collection_name)
+    print(temp_raw)
 
-    # #if sort button is clicked
+    # if sort button is clicked
     # if collection_name == "CityofCalgary - Traffic Volumes" or collection_name == "CityofCalgary - Traffic Volumes 2":
     #     temp_sorted = db_reader.sort(temp_raw,'volume')
     # if collection_name == "CityofCalgary - Traffic Volumes 3":
     #     temp_sorted = db_reader.sort(temp_raw,'VOLUME')
-    # ##TODO Need to specific correct column header ' ' to sort dataframe by....
     # if collection_name == "CityofCalgary - Traffic Incidents" or collection_name == "CityofCalgary - Traffic Incidents2" or collection_name == "CityofCalgary - Traffic Incidents 3":
-    #     temp_sorted = db_reader.sory(temp_raw,'START_DT')
+    # #TODO Need to create a grouping function here for incidents and call it with temp_raw
+    #      temp_sorted = db_reader.sort(group_by_count(temp_raw,'INCIDENT INFO'),'Count')
     
-    # print(temp_sorted)
+    oof = db_reader.group_by_count(temp_raw,'INCIDENT INFO')
+    print(oof)
+    print(db_reader.sort(oof,'Count'))
+  
 
     # temp = db_reader.traffic_incidents("CityofCalgary - Traffic Incidents")
     # print(temp)
 
-    file_analyzer = Analyzer()
-    other = file_analyzer.read_all_traffic_volumes()
-    print(other)
-    years = ["2016", "2017", "2018"]
-    file_analyzer.histogram_plot(years, other)
+    # file_analyzer = Analyzer()
+
+    # other = file_analyzer.read_all_traffic_volumes()
+    # print(other)
+    # years = ["2016", "2017", "2018"]
+    # file_analyzer.bar_plot(years, other,"Total Traffic Volumes","Calgary Traffic Volume Counts")
+
+    # other1 = file_analyzer.read_all_traffic_incidents()
+    # print(other1)
+    # file_analyzer.bar_plot(years, other1,"Total Traffic Incidents","Calgary Traffic Incident Counts")
