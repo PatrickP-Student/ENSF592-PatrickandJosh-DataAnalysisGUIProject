@@ -5,7 +5,7 @@ The purpose of this program is to build the GUI that will read, sort, and analyz
 import tkinter as tk
 from tkinter import ttk
 from read_from_db import *
-
+import read_from_db as rfd
 
 # Returns collection_name string for read_from_db's method parameters based on the selection of the comboboxes
 def data_types():
@@ -30,145 +30,167 @@ def data_types():
 
 
 # Specifies column layout and headers depending on the combobox selections
-def tree_type():
-    if type_combo.get() == "Traffic Volumes":
+def tree_insert():
+    if type_combo.get() == "Traffic Volume":
         tree1.grid(row=0, column=1, sticky="nwes")
+        tree1.insert("", 0, text="First Row", values=["B1", "C1", "D1", "E1"])
         print(str(data_types()))
-    else:
+    elif type_combo.get() == "Traffic Incidents":
         tree2.grid(row=0, column=1, sticky="nwes")
         print(str(data_types()))
 
+# def data_insert():
+#
+#     if type_combo.get() == "Traffic Volume":
+#         tree1.insert("",0,text="First Row", values = ["B1","C1","D1","E1"])
+
+        # for i in range(5):
+        #     for j in db_Reader.traffic_volumes(str(data_types()))[i]:
+        #         tree1.insert("", 1, i)
 
 
-window = tk.Tk()
-window.title("Traffic Analysis")
-window.columnconfigure([0, 1], weight=1)
-window.rowconfigure(0, weight=1)
+if __name__ == "__main__":
+    # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
+    cluster = pymongo.MongoClient(
+        "mongodb+srv://User_2:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
+    # clairifies database that will be used for this application
+    db = cluster["ENSF592-DataCity"]
+    db_Reader = DBReader()
 
-frame_left = tk.Frame(master=window, width=250, height=400,
-                      bg="gray55")  # build the left frame that will hold all the buttons
-frame_left.columnconfigure(0, weight=1)
-frame_left.rowconfigure([0,7], weight=1)
-frame_left.grid(column=0, sticky="nsew")
 
-frame_right = tk.Frame(master=window, width=1000)  # build the right frame that will hold all the data
-frame_right.columnconfigure(1, weight=1)
-frame_right.rowconfigure(0, weight=1)
-frame_right.grid(column=1)
+    window = tk.Tk()
+    window.title("Traffic Analysis")
+    window.columnconfigure([0, 1], weight=1)
+    window.rowconfigure(0, weight=1)
 
-type_combo = ttk.Combobox(
-    values=["Traffic Volume", "Traffic Incidents"],  # Data type combobox
-    justify="center",
-    master=frame_left,
-    width=16
-)
-type_combo.grid(row=0, column=0, padx=5, pady=5)
+    frame_left = tk.Frame(master=window, width=250, height=400,
+                          bg="gray55")  # build the left frame that will hold all the buttons
+    frame_left.columnconfigure(0, weight=1)
+    frame_left.rowconfigure([0,7], weight=1)
+    frame_left.grid(column=0, sticky="nsew")
 
-year_combo = ttk.Combobox(  # Year combobox
-    values=["2016", "2017", "2018"],
-    justify="center",
-    master=frame_left,
-    width=16
-)
-year_combo.grid(row=1, column=0, padx=5, pady=5)
+    frame_right = tk.Frame(master=window, width=1000)  # build the right frame that will hold all the data
+    frame_right.columnconfigure(1, weight=1)
+    frame_right.rowconfigure(0, weight=1)
+    frame_right.grid(column=1)
 
-read_btn = tk.Button(  # Build Read button
-    relief="solid",
-    master=frame_left,
-    text="Read",
-    width=16,
-    command=lambda: [data_types(), tree_type()]
-)
-read_btn.grid(row=2, column=0, padx=5, pady=5)
+    type_combo = ttk.Combobox(
+        values=["Traffic Volume", "Traffic Incidents"],  # Data type combobox
+        justify="center",
+        master=frame_left,
+        width=16
+    )
+    type_combo.grid(row=0, column=0, padx=5, pady=5)
 
-### TREE1 IS FOR TRAFFIC VOLUME
-# Getting Treeview list for Traffic Volume
-tree1 = ttk.Treeview(window)
+    year_combo = ttk.Combobox(  # Year combobox
+        values=["2016", "2017", "2018"],
+        justify="center",
+        master=frame_left,
+        width=16
+    )
+    year_combo.grid(row=1, column=0, padx=5, pady=5)
 
-# Creating Columns
-tree1["columns"] = ("the_geom", "year_vol", "shape_leng", "volume")
+    read_btn = tk.Button(  # Build Read button
+        relief="solid",
+        master=frame_left,
+        text="Read",
+        width=16,
+        activebackground = "tomato",
+        command=data_types and tree_insert
+    )
+    read_btn.grid(row=2, column=0, padx=5, pady=5)
 
-# Formatting Columns
-tree1.column("#0", width=80, minwidth=50)
-tree1.column("the_geom", width=80, minwidth=50)
-tree1.column("year_vol", width=80, minwidth=50)
-tree1.column("shape_leng", width=80, minwidth=50)
-tree1.column("volume", width=80, minwidth=50)
+    ### TREE1 IS FOR TRAFFIC VOLUME
+    # Getting Treeview list for Traffic Volume
+    tree1 = ttk.Treeview(window)
 
-tree1.heading("#0", text="secname", anchor=tk.W)
-tree1.heading("the_geom", text="the_geom", anchor=tk.W)
-tree1.heading("year_vol", text="year_vol", anchor=tk.W)
-tree1.heading("shape_leng", text="shape_leng", anchor=tk.W)
-tree1.heading("volume", text="volume", anchor=tk.W)
+    # Creating Columns
+    tree1["columns"] = ("the_geom", "year_vol", "shape_leng", "volume")
 
-### TREE2 IS FOR TRAFFIC INCIDENTS
-# Getting Treeview list For Traffic Incidents
-tree2 = ttk.Treeview(window)
+    # Formatting Columns
+    tree1.column("#0", width=80, minwidth=50)
+    tree1.column("the_geom", width=80, minwidth=50)
+    tree1.column("year_vol", width=80, minwidth=50)
+    tree1.column("shape_leng", width=80, minwidth=50)
+    tree1.column("volume", width=80, minwidth=50)
 
-# Creating Columns
-tree2["columns"] = ("DESCRIPTION", "START_DT", "MODIFIED_DT", "QUADRANT", "Longitude", "Latitude", "location", "Count")
+    tree1.heading("#0", text="secname", anchor=tk.W)
+    tree1.heading("the_geom", text="the_geom", anchor=tk.W)
+    tree1.heading("year_vol", text="year_vol", anchor=tk.W)
+    tree1.heading("shape_leng", text="shape_leng", anchor=tk.W)
+    tree1.heading("volume", text="volume", anchor=tk.W)
 
-# Formatting Columns
-tree2.column("#0", width=80, minwidth=50)
-tree2.column("DESCRIPTION", width=80, minwidth=50)
-tree2.column("START_DT", width=80, minwidth=50)
-tree2.column("MODIFIED_DT", width=80, minwidth=50)
-tree2.column("QUADRANT", width=80, minwidth=50)
-tree2.column("Longitude", width=80, minwidth=50)
-tree2.column("Latitude", width=80, minwidth=50)
-tree2.column("location", width=80, minwidth=50)
-tree2.column("Count", width=80, minwidth=50)
+    ### TREE2 IS FOR TRAFFIC INCIDENTS
+    # Getting Treeview list For Traffic Incidents
+    tree2 = ttk.Treeview(window)
 
-tree2.heading("#0", text="INCIDENT INFO", anchor=tk.W)
-tree2.heading("DESCRIPTION", text="DESCRIPTION", anchor=tk.W)
-tree2.heading("START_DT", text="START_DT", anchor=tk.W)
-tree2.heading("MODIFIED_DT", text="MODIFIED_DT", anchor=tk.W)
-tree2.heading("QUADRANT", text="QUADRANT", anchor=tk.W)
-tree2.heading("Longitude", text="Longitude", anchor=tk.W)
-tree2.heading("Latitude", text="Latitude", anchor=tk.W)
-tree2.heading("location", text="location", anchor=tk.W)
-tree2.heading("Count", text="Count", anchor=tk.W)
+    # Creating Columns
+    tree2["columns"] = ("DESCRIPTION", "START_DT", "MODIFIED_DT", "QUADRANT", "Longitude", "Latitude", "location", "Count")
 
-sort_btn = tk.Button(  # Build Sort button
-    relief="solid",
-    master=frame_left,
-    text="Sort",
-    width=16
-)
-sort_btn.grid(row=3, column=0, padx=5, pady=5)
+    # Formatting Columns
+    tree2.column("#0", width=80, minwidth=50)
+    tree2.column("DESCRIPTION", width=80, minwidth=50)
+    tree2.column("START_DT", width=80, minwidth=50)
+    tree2.column("MODIFIED_DT", width=80, minwidth=50)
+    tree2.column("QUADRANT", width=80, minwidth=50)
+    tree2.column("Longitude", width=80, minwidth=50)
+    tree2.column("Latitude", width=80, minwidth=50)
+    tree2.column("location", width=80, minwidth=50)
+    tree2.column("Count", width=80, minwidth=50)
 
-analysis_btn = tk.Button(  # Build Analysis button
-    relief="solid",
-    master=frame_left,
-    text="Analysis",
-    width=16
-)
-analysis_btn.grid(row=4, column=0, padx=5, pady=5)
+    tree2.heading("#0", text="INCIDENT INFO", anchor=tk.W)
+    tree2.heading("DESCRIPTION", text="DESCRIPTION", anchor=tk.W)
+    tree2.heading("START_DT", text="START_DT", anchor=tk.W)
+    tree2.heading("MODIFIED_DT", text="MODIFIED_DT", anchor=tk.W)
+    tree2.heading("QUADRANT", text="QUADRANT", anchor=tk.W)
+    tree2.heading("Longitude", text="Longitude", anchor=tk.W)
+    tree2.heading("Latitude", text="Latitude", anchor=tk.W)
+    tree2.heading("location", text="location", anchor=tk.W)
+    tree2.heading("Count", text="Count", anchor=tk.W)
 
-map_btn = tk.Button(  # Build Map button
-    relief="solid",
-    master=frame_left,
-    text="Map",
-    width=16
-)
-map_btn.grid(row=5, column=0, padx=5, pady=5)
+    sort_btn = tk.Button(  # Build Sort button
+        relief="solid",
+        master=frame_left,
+        text="Sort",
+        activebackground="tomato",
+        width=16
+    )
+    sort_btn.grid(row=3, column=0, padx=5, pady=5)
 
-status_label = tk.Label(  # Build status label
-    master=frame_left,
-    text="Status:",
-    bg="gray55"
-)
-status_label.grid(row=6, column=0, padx=5, sticky="w")
+    analysis_btn = tk.Button(  # Build Analysis button
+        relief="solid",
+        master=frame_left,
+        text="Analysis",
+        activebackground="tomato",
+        width=16
+    )
+    analysis_btn.grid(row=4, column=0, padx=5, pady=5)
 
-status_box = tk.Label(  # Build the status message box
-    master=frame_left,
-    height=3,
-    width=16,
-    wraplength=85,
-    relief="solid",
-    text="Successfully read from DB",
-    bg="green2"
-)
-status_box.grid(row=7, column=0, padx=5, pady=5)
+    map_btn = tk.Button(  # Build Map button
+        relief="solid",
+        master=frame_left,
+        text="Map",
+        activebackground="tomato",
+        width=16
+    )
+    map_btn.grid(row=5, column=0, padx=5, pady=5)
 
-window.mainloop()
+    status_label = tk.Label(  # Build status label
+        master=frame_left,
+        text="Status:",
+        bg="gray55"
+    )
+    status_label.grid(row=6, column=0, padx=5, sticky="w")
+
+    status_box = tk.Label(  # Build the status message box
+        master=frame_left,
+        height=3,
+        width=16,
+        wraplength=85,
+        relief="solid",
+        text="Successfully read from DB",
+        bg="green2"
+    )
+    status_box.grid(row=7, column=0, padx=5, pady=5)
+
+    window.mainloop()
