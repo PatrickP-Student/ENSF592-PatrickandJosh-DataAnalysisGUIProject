@@ -96,7 +96,7 @@ class DBReader:
         if column_name == "VOLUME":
             temp = data_struct.loc[data_struct.VOLUME == max_count,'multilinestring'].tolist()[0]
             return temp
-        if column_name == "Traffic Incident":
+        if column_name == "Count":
             temp = data_struct.loc[data_struct.Count == max_count,'location'].tolist()[0]
             return temp
 

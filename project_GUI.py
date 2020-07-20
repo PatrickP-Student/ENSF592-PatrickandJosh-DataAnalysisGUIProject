@@ -58,8 +58,7 @@ class GUI:
             self.temp = reader_obj.traffic_volumes(collection_name)
             self.tree_insert(self.temp)
 
-    ## TODO Figure out how to pass the self.temp objects created and held in the data_types read function
-    ## , might need to also make the object instance accessible between functions as well
+
     # This function will take the dataframe object currently read and sort it based on descending order
     # from Incident Count or Traffic Volume
     def data_sort(self):
@@ -102,7 +101,8 @@ class GUI:
             self.tempSorted = reader_obj.sort(self.temp,column_name)
             self.tree_insert(self.tempSorted)
 
-    #TODO Fix extra column (blank) at end of method that is added on sorting
+    #TODO Extra columns still there for Traffic Incident reading and sorting? Left frame doesnt
+    #disappear anymore though, (minor bug fix here).
     # Specifies column layout and headers depending on the combobox selections and physically builds
     # the chart display from the dataframe data to the GUI.
     def tree_insert(self,df): #df is the data frame object
@@ -116,13 +116,11 @@ class GUI:
 
             tree.column(x, width=80, minwidth=80)
             tree.heading(x, text=df_col[x])
-            print(x)
             for i in range(counter):
                 tree.insert('', i, text=rowLabels[i], values=df.iloc[i,:].tolist())
         tree.grid(row=0, column=1, sticky = "nsew")
         
-    #TODO: Check and see if Traffic Incidents maps work, waiting for left pane disappearing bug
-    #to be fixed
+
     #############################################################################################
     # This function will get the max values for either traffic volume or traffic incidents, based
     # on year selected by user, and the corresponding coordinates, and write a marker to a folium
@@ -131,8 +129,8 @@ class GUI:
         reader_obj = rfd.DBReader()
         if type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
             column_name = "volume"
-            max_count = reader_obj.get_max_count(self.temp,column_name)
-            holding = reader_obj.get_max_coords(self.temp,max_count,column_name)
+            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
             coords = re.findall("\d+\.\d+", holding)
             coordinate1 = float(coords[1])
             coordinate2 = float(coords[0])
@@ -144,8 +142,8 @@ class GUI:
             m.save('2016TrafficVolumeMap.html')
         elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
             column_name = "volume"
-            max_count = reader_obj.get_max_count(self.temp,column_name)
-            holding = reader_obj.get_max_coords(self.temp,max_count,column_name)
+            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
             coords = re.findall("\d+\.\d+", holding)
             coordinate1 = float(coords[1])
             coordinate2 = float(coords[0])
@@ -157,8 +155,8 @@ class GUI:
             m.save('2017TrafficVolumeMap.html')
         elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
             column_name = "VOLUME"
-            max_count = reader_obj.get_max_count(self.temp,column_name)
-            holding = reader_obj.get_max_coords(self.temp,max_count,column_name)
+            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
             coords = re.findall("\d+\.\d+", holding)
             coordinate1 = float(coords[1])
             coordinate2 = float(coords[0])
@@ -170,11 +168,11 @@ class GUI:
             m.save('2018TrafficVolumeMap.html')
         elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
             column_name = "Count"
-            max_count = reader_obj.get_max_count(self.temp,column_name)
-            holding = reader_obj.get_max_coords(self.temp,max_count,column_name)
+            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
             coords = re.findall("\d+\.\d+", holding)
-            coordinate1 = float(coords[1])
-            coordinate2 = float(coords[0])
+            coordinate1 = float(coords[0])
+            coordinate2 = float(coords[1])
             coordinate2 = (-1)*coordinate2
             latlon = [coordinate1, coordinate2]
             m = folium.Map(location=latlon, zoom_start=12)
@@ -183,11 +181,11 @@ class GUI:
             m.save('2016TrafficIncidentsMap.html')
         elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
             column_name = "Count"
-            max_count = reader_obj.get_max_count(self.temp,column_name)
-            holding = reader_obj.get_max_coords(self.temp,max_count,column_name)
+            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
             coords = re.findall("\d+\.\d+", holding)
-            coordinate1 = float(coords[1])
-            coordinate2 = float(coords[0])
+            coordinate1 = float(coords[0])
+            coordinate2 = float(coords[1])
             coordinate2 = (-1)*coordinate2
             latlon = [coordinate1, coordinate2]
             m = folium.Map(location=latlon, zoom_start=12)
@@ -196,11 +194,11 @@ class GUI:
             m.save('2017TrafficIncidentsMap.html')
         elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
             column_name = "Count"
-            max_count = reader_obj.get_max_count(self.temp,column_name)
-            holding = reader_obj.get_max_coords(self.temp,max_count,column_name)
+            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
             coords = re.findall("\d+\.\d+", holding)
-            coordinate1 = float(coords[1])
-            coordinate2 = float(coords[0])
+            coordinate1 = float(coords[0])
+            coordinate2 = float(coords[1])
             coordinate2 = (-1)*coordinate2
             latlon = [coordinate1, coordinate2]
             m = folium.Map(location=latlon, zoom_start=12)
@@ -212,7 +210,6 @@ class GUI:
 # Function to insert an embedded histogram into the window
 # TODO: Can we make the plot go away if we try to read new data?
     def insert_hist(self):
-
         analyzer_object = rfd.Analyzer()
         list_x = ["2016", "2017", "2018"]
         if type_combo.get() == "Traffic Incidents":
@@ -297,7 +294,7 @@ if __name__ == "__main__":
         text="Read",
         width=16,
         activebackground="tomato",
-        command=app.data_types
+        command= app.data_types
     )
     read_btn.grid(row=2, column=0, padx=5, pady=5)
 
@@ -338,6 +335,7 @@ if __name__ == "__main__":
     )
     status_label.grid(row=6, column=0, padx=5, sticky="w")
 
+    #TODO: Need to build Status box functionality
     status_box = tk.Label(  # Build the status message box
         master=frame_left,
         height=3,
