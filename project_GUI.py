@@ -119,7 +119,7 @@ class GUI:
             print(x)
             for i in range(counter):
                 tree.insert('', i, text=rowLabels[i], values=df.iloc[i,:].tolist())
-        tree.grid(row=0, column=1)
+        tree.grid(row=0, column=1, sticky = "nsew")
         
     #TODO: Check and see if Traffic Incidents maps work, waiting for left pane disappearing bug
     #to be fixed
@@ -218,7 +218,7 @@ class GUI:
         if type_combo.get() == "Traffic Incidents":
             data = {"Years": list_x, "Traffic Incidents": analyzer_object.read_all_traffic_incidents()}
             df = DataFrame(data, columns=["Years", "Traffic Incidents"])
-            figure = plt.Figure(figsize=(3, 3), dpi=100)
+            figure = plt.Figure(figsize=(1, 1), dpi=100)
             ax1 = figure.add_subplot(111)
             bar1 = FigureCanvasTkAgg(figure, master=window)
             bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
@@ -229,7 +229,7 @@ class GUI:
         elif type_combo.get() == "Traffic Volume":
             data = {"Years": list_x, "Traffic Volume": analyzer_object.read_all_traffic_volumes()}
             df = DataFrame(data, columns=["Years", "Traffic Volume"])
-            figure = plt.Figure(figsize=(3, 3), dpi=100)
+            figure = plt.Figure(figsize=(1, 1), dpi=100)
             ax1 = figure.add_subplot(111)
             bar1 = FigureCanvasTkAgg(figure, master=window)
             bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
@@ -247,21 +247,27 @@ if __name__ == "__main__":
     window.title("Traffic Analysis")
     window.columnconfigure([0, 1], weight=1)
     window.rowconfigure(0, weight=1)
-    window.geometry("1200x500")
-    # window.propagate(0)
+    window.geometry("1300x500")
+    window.propagate(False)
+    # window.maxsize(width=1200,height=400)
 
     frame_left = tk.Frame(master=window, width=100, height=400,
                           bg="gray55")  # build the left frame that will hold all the buttons
-    frame_left.columnconfigure(0, weight=1, minsize=100)
+    frame_left.columnconfigure(0, weight=1, minsize=200)
     frame_left.rowconfigure([0, 7], weight=1, minsize=100)
     frame_left.grid(column=0, sticky="nsew")
-    # frame_left.grid_propagate(0)
+    frame_left.grid_propagate(False)
 
-    frame_right = tk.Frame(master=window, width=1000)  # build the right frame that will hold all the data
+
+    frame_right = tk.Frame(master=window, width=1000, height=400)  # build the right frame that will hold all the data
     frame_right.columnconfigure(1, weight=1)
     frame_right.rowconfigure(0, weight=1)
-    frame_right.grid(column=1, sticky="nsew")
-    # frame_left.grid_propagate(0)
+    frame_right.grid(row=0, column=1, sticky="nsew")
+    frame_right.grid_propagate(False)
+
+    # Instantiate the tree object
+    tree = ttk.Treeview(frame_right)
+
 
     type_combo = ttk.Combobox(
         values=["Traffic Volume", "Traffic Incidents"],  # Data type combobox
@@ -269,7 +275,7 @@ if __name__ == "__main__":
         master=frame_left,
         width=16
     )
-    type_combo.grid(row=0, column=0, padx=5, pady=5)
+    type_combo.grid(row=0, column=0, padx=5, pady=5, sticky='s')
 
     year_combo = ttk.Combobox(  # Year combobox
         values=["2016", "2017", "2018"],
@@ -288,9 +294,6 @@ if __name__ == "__main__":
         command=app.data_types
     )
     read_btn.grid(row=2, column=0, padx=5, pady=5)
-
-    # Instantiate the tree object
-    tree = ttk.Treeview(window)
 
     sort_btn = tk.Button(  # Build Sort button
         relief="solid",
@@ -338,6 +341,6 @@ if __name__ == "__main__":
         text="Successfully read from DB",
         bg="green2"
     )
-    status_box.grid(row=7, column=0, padx=5, pady=5)
+    status_box.grid(row=7, column=0, padx=5, pady=5, sticky="n")
 
     window.mainloop()
