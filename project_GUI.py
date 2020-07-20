@@ -26,7 +26,7 @@ class GUI:
     def __init__(self):
         self.temp = None
         self.tempSorted = None
-        
+
 
     # Returns collection_name string for read_from_db's method parameters based on the selection of the comboboxes
     def data_types(self):
@@ -212,7 +212,6 @@ class GUI:
 # Function to insert an embedded histogram into the window
 # TODO: Can we make the plot go away if we try to read new data?
     def insert_hist(self):
-
         analyzer_object = rfd.Analyzer()
         list_x = ["2016", "2017", "2018"]
         if type_combo.get() == "Traffic Incidents":
@@ -242,8 +241,6 @@ class GUI:
             ax1.set_title('Year vs Traffic Volumes')
 
 
-
-
 if __name__ == "__main__":
 
     # Instantiate the GUI class
@@ -255,7 +252,6 @@ if __name__ == "__main__":
     window.rowconfigure(0, weight=1)
     window.geometry("1300x500")
     window.propagate(False)
-    # window.maxsize(width=1200,height=400)
 
     frame_left = tk.Frame(master=window, width=100, height=400,
                           bg="gray55")  # build the left frame that will hold all the buttons
