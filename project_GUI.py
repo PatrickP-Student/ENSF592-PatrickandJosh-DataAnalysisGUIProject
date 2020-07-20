@@ -4,12 +4,11 @@ The purpose of this program is to build the GUI that will read, sort, and analyz
 
 import tkinter as tk
 from tkinter import ttk
-from tkinter.tix import ScrolledWindow
+
 import matplotlib
 
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
 import pandas
 import read_from_db as rfd
 import pymongo
@@ -112,7 +111,7 @@ class GUI:
         tree.grid(row=0, column=1, sticky="nsew")
 
 # Function to insert an embedded histogram into the window
-# Can we make the plot go away if we try to read new data?
+# TODO: Can we make the plot go away if we try to read new data? Also see if we can set the Y axis
     def insert_hist(self):
 
         analyzer_object = rfd.Analyzer()
@@ -150,23 +149,20 @@ if __name__ == "__main__":
     window.columnconfigure([0, 1], weight=1)
     window.rowconfigure(0, weight=1)
     window.geometry("1200x500")
-    window.resizable(height=None, width=None)
+    # window.propagate(0)
 
     frame_left = tk.Frame(master=window, width=100, height=400,
                           bg="gray55")  # build the left frame that will hold all the buttons
     frame_left.columnconfigure(0, weight=1, minsize=100)
-    frame_left.rowconfigure([0, 7], weight=1)
+    frame_left.rowconfigure([0, 7], weight=1, minsize=100)
     frame_left.grid(column=0, sticky="nsew")
+    # frame_left.grid_propagate(0)
 
     frame_right = tk.Frame(master=window, width=1000)  # build the right frame that will hold all the data
     frame_right.columnconfigure(1, weight=1)
     frame_right.rowconfigure(0, weight=1)
     frame_right.grid(column=1, sticky="nsew")
-
-    # SBarY = tk.Scrollbar(master=window)
-    # SBarY.grid(row=0, column=1, sticky="ne")
-    # SBarX = tk.Scrollbar(master=window, orient=tk.HORIZONTAL)
-    # SBarX.grid(row=0, column=1, sticky="sw")
+    # frame_left.grid_propagate(0)
 
     type_combo = ttk.Combobox(
         values=["Traffic Volume", "Traffic Incidents"],  # Data type combobox
