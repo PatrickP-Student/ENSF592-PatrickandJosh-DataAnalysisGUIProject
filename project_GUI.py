@@ -210,7 +210,7 @@ class GUI:
 
 
 # Function to insert an embedded histogram into the window
-# TODO: Can we make the plot go away if we try to read new data? Also see if we can set the Y axis
+# TODO: Can we make the plot go away if we try to read new data?
     def insert_hist(self):
 
         analyzer_object = rfd.Analyzer()
@@ -218,24 +218,30 @@ class GUI:
         if type_combo.get() == "Traffic Incidents":
             data = {"Years": list_x, "Traffic Incidents": analyzer_object.read_all_traffic_incidents()}
             df = DataFrame(data, columns=["Years", "Traffic Incidents"])
-            figure = plt.Figure(figsize=(1, 1), dpi=100)
+            figure = plt.Figure(figsize=(1, 1), dpi=80)
             ax1 = figure.add_subplot(111)
+            ax1.set_ylabel("Incidents")
             bar1 = FigureCanvasTkAgg(figure, master=frame_right)
             bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
             df = df[['Years', 'Traffic Incidents']].groupby('Years').sum()
             df.plot(kind='bar', legend=True, ax=ax1)
             ax1.set_title('Year vs Traffic Incidents')
 
+
         elif type_combo.get() == "Traffic Volume":
             data = {"Years": list_x, "Traffic Volume": analyzer_object.read_all_traffic_volumes()}
             df = DataFrame(data, columns=["Years", "Traffic Volume"])
-            figure = plt.Figure(figsize=(1, 1), dpi=100)
+            figure = plt.Figure(figsize=(1, 1), dpi=80)
             ax1 = figure.add_subplot(111)
+            ax1.set_ylabel("Volume")
+            ax1.ticklabel_format(useOffset=False, style='plain')            # gets rid of scientific notation
             bar1 = FigureCanvasTkAgg(figure, master=frame_right)
             bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
             df = df[['Years', 'Traffic Volume']].groupby('Years').sum()
             df.plot(kind='bar', legend=True, ax=ax1)
             ax1.set_title('Year vs Traffic Volumes')
+
+
 
 
 if __name__ == "__main__":
