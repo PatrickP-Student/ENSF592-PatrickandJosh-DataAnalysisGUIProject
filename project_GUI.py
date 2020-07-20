@@ -13,6 +13,7 @@ import pandas
 import read_from_db as rfd
 import pymongo
 from pymongo import MongoClient
+from pymongo import errors
 import folium
 import re
 from pandas import DataFrame
@@ -60,6 +61,10 @@ class GUI:
                 self.temp = reader_obj.traffic_volumes(collection_name)
                 self.tree_insert(self.temp)
             app.status_box_generator("Successfully Read From DB", "green2")
+        except NameError:
+            app.status_box_generator("Error with data in database.", "firebrick1")
+        except pymongo.errors.ConfigurationError:
+            app.status_box_generator("Cannot connect to database.", "firebrick1")
         except Exception as e:
             app.status_box_generator("Unsuccessful Read: " + str(repr(e)), "firebrick1")
 
@@ -108,8 +113,10 @@ class GUI:
                 self.tempSorted = reader_obj.sort(self.temp,column_name)
                 self.tree_insert(self.tempSorted)
             app.status_box_generator("Successfully Sorted","green2")
+        except KeyError:
+            app.status_box_generator("Must sort the same file that has been read.", "firebrick1")
         except AttributeError:
-            app.status_box_generator("Read the data before trying to sort.", "firebrick1")
+            app.status_box_generator("Must read the data before trying to sort.", "firebrick1")
         except Exception as e:
             app.status_box_generator("Unsuccessful Sort" + str(repr(e)), "firebrick1")
 
@@ -153,6 +160,7 @@ class GUI:
                 tooltip = '2016 - Highest Traffic Volume Location'
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2016TrafficVolumeMap.html')
+                app.status_box_generator("Map HTML Successfully Generated", "green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
                 column_name = "volume"
                 max_count = reader_obj.get_max_count(self.tempSorted,column_name)
@@ -166,6 +174,7 @@ class GUI:
                 tooltip = '2017 - Highest Traffic Volume Location'
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2017TrafficVolumeMap.html')
+                app.status_box_generator("Map HTML Successfully Generated", "green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
                 column_name = "VOLUME"
                 max_count = reader_obj.get_max_count(self.tempSorted,column_name)
@@ -179,6 +188,7 @@ class GUI:
                 tooltip = '2018 - Highest Traffic Volume Location'
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2018TrafficVolumeMap.html')
+                app.status_box_generator("Map HTML Successfully Generated", "green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
                 column_name = "Count"
                 max_count = reader_obj.get_max_count(self.tempSorted,column_name)
@@ -192,6 +202,7 @@ class GUI:
                 tooltip = '2016 - Highest Traffic Incidents Location'
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2016TrafficIncidentsMap.html')
+                app.status_box_generator("Map HTML Successfully Generated", "green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
                 column_name = "Count"
                 max_count = reader_obj.get_max_count(self.tempSorted,column_name)
@@ -205,6 +216,7 @@ class GUI:
                 tooltip = '2017 - Highest Traffic Incidents Location'
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2017TrafficIncidentsMap.html')
+                app.status_box_generator("Map HTML Successfully Generated", "green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
                 column_name = "Count"
                 max_count = reader_obj.get_max_count(self.tempSorted,column_name)
@@ -218,10 +230,13 @@ class GUI:
                 tooltip = '2018 - Highest Traffic Incidents Location'
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2018TrafficIncidentsMap.html')
-            app.status_box_generator("Map HTML Successfully Generated","green2")
+                app.status_box_generator("Map HTML Successfully Generated", "green2")
+            elif self.temp == None:
+                app.status_box_generator("Must select data in both dropdown boxes.", "firebrick1")
+        except TypeError:
+            app.status_box_generator("Must read and sort data before generating map.", "firebrick1")
         except Exception as e:
             app.status_box_generator("Unsuccessful Map Generation:" + str(repr(e)), "firebrick1")
-
 
 
 # Function to insert an embedded histogram into the window
@@ -254,6 +269,10 @@ class GUI:
                 df.plot(kind='bar', legend=True, ax=ax1)
                 ax1.set_title('Year vs Traffic Volumes')
             app.status_box_generator("Analysis Successfully Generated","green2")
+        except NameError:
+            app.status_box_generator("Error with data in database.", "firebrick1")
+        except pymongo.errors.ConfigurationError:
+            app.status_box_generator("Cannot connect to database.", "firebrick1")
         except Exception as e:
             app.status_box_generator("Unsuccessful Analysis: " + str(repr(e)),"firebrick1")
 
