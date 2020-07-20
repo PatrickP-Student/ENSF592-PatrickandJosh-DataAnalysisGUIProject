@@ -17,6 +17,7 @@ import folium
 import re
 from pandas import DataFrame
 import matplotlib.pyplot as plt
+import traceback
 
 
 class GUI:
@@ -33,30 +34,35 @@ class GUI:
         reader_obj = rfd.DBReader() # Object used to do things
         # Each statement accounts for a scenario based on the users choice in the combo-boxes
         # and returns the corresponding dataframe displayed in the GUI
-        if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
-            collection_name = "CityofCalgary - Traffic Incidents"
-            self.temp = reader_obj.traffic_incidents(collection_name)
-            self.tree_insert(self.temp)
-        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
-            collection_name = "CityofCalgary - Traffic Incidents 2"
-            self.temp = reader_obj.traffic_incidents(collection_name)
-            self.tree_insert(self.temp)
-        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
-            collection_name = "CityofCalgary - Traffic Incidents 3"
-            self.temp = reader_obj.traffic_incidents(collection_name)
-            self.tree_insert(self.temp)
-        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
-            collection_name = "CityofCalgary - Traffic Volumes"
-            self.temp = reader_obj.traffic_volumes(collection_name)
-            self.tree_insert(self.temp)
-        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
-            collection_name = "CityofCalgary - Traffic Volumes 2"
-            self.temp = reader_obj.traffic_volumes(collection_name)
-            self.tree_insert(self.temp)
-        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
-            collection_name = "CityofCalgary - Traffic Volumes 3"
-            self.temp = reader_obj.traffic_volumes(collection_name)
-            self.tree_insert(self.temp)
+        try:
+            if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
+                collection_name = "CityofCalgary - Traffic Incidents"
+                self.temp = reader_obj.traffic_incidents(collection_name)
+                self.tree_insert(self.temp)
+            elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
+                collection_name = "CityofCalgary - Traffic Incidents 2"
+                self.temp = reader_obj.traffic_incidents(collection_name)
+                self.tree_insert(self.temp)
+            elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
+                collection_name = "CityofCalgary - Traffic Incidents 3"
+                self.temp = reader_obj.traffic_incidents(collection_name)
+                self.tree_insert(self.temp)
+            elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
+                collection_name = "CityofCalgary - Traffic Volumes"
+                self.temp = reader_obj.traffic_volumes(collection_name)
+                self.tree_insert(self.temp)
+            elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
+                collection_name = "CityofCalgary - Traffic Volumes 2"
+                self.temp = reader_obj.traffic_volumes(collection_name)
+                self.tree_insert(self.temp)
+            elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
+                collection_name = "CityofCalgary - Traffic Volumes 3"
+                self.temp = reader_obj.traffic_volumes(collection_name)
+                self.tree_insert(self.temp)
+            app.status_box_generator("Successfully Read From DB", "green2")
+        except Exception as e:
+            app.status_box_generator("Unsuccessful Read: " + str(repr(e)), "firebrick1")
+
 
 
     # This function will take the dataframe object currently read and sort it based on descending order
@@ -67,39 +73,45 @@ class GUI:
         # and returns the corresponding dataframe displayed in the GUI.
         #### TODO: THE DATA MUST BE READ BEFORE IT CAN BE SORTED. NEED TO THROW AN ERROR IN THE STATUS
         #### STATUS WINDOW IF IT IS NOT
-        if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
-            collection_name = "CityofCalgary - Traffic Incidents"
-            column_name = "Count"
-            self.temp1 = reader_obj.group_by_count(self.temp,column_name)
-            self.tempSorted = reader_obj.sort(self.temp1,column_name)
-            self.tree_insert(self.tempSorted)
-        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
-            collection_name = "CityofCalgary - Traffic Incidents 2"
-            column_name = "Count"
-            self.temp1 = reader_obj.group_by_count(self.temp,column_name)
-            self.tempSorted = reader_obj.sort(self.temp1,column_name)
-            self.tree_insert(self.tempSorted)
-        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
-            collection_name = "CityofCalgary - Traffic Incidents 3"
-            column_name = "Count"
-            self.temp1 = reader_obj.group_by_count(self.temp,column_name)
-            self.tempSorted = reader_obj.sort(self.temp1,column_name)
-            self.tree_insert(self.tempSorted)
-        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
-            collection_name = "CityofCalgary - Traffic Volumes"
-            column_name = "volume"
-            self.tempSorted = reader_obj.sort(self.temp,column_name)
-            self.tree_insert(self.tempSorted)
-        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
-            collection_name = "CityofCalgary - Traffic Volumes 2"
-            column_name = "volume"
-            self.tempSorted = reader_obj.sort(self.temp,column_name)
-            self.tree_insert(self.tempSorted)
-        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
-            collection_name = "CityofCalgary - Traffic Volumes 3"
-            column_name = "VOLUME"
-            self.tempSorted = reader_obj.sort(self.temp,column_name)
-            self.tree_insert(self.tempSorted)
+        try:
+            if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
+                collection_name = "CityofCalgary - Traffic Incidents"
+                column_name = "Count"
+                self.temp1 = reader_obj.group_by_count(self.temp,column_name)
+                self.tempSorted = reader_obj.sort(self.temp1,column_name)
+                self.tree_insert(self.tempSorted)
+            elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
+                collection_name = "CityofCalgary - Traffic Incidents 2"
+                column_name = "Count"
+                self.temp1 = reader_obj.group_by_count(self.temp,column_name)
+                self.tempSorted = reader_obj.sort(self.temp1,column_name)
+                self.tree_insert(self.tempSorted)
+            elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
+                collection_name = "CityofCalgary - Traffic Incidents 3"
+                column_name = "Count"
+                self.temp1 = reader_obj.group_by_count(self.temp,column_name)
+                self.tempSorted = reader_obj.sort(self.temp1,column_name)
+                self.tree_insert(self.tempSorted)
+            elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
+                collection_name = "CityofCalgary - Traffic Volumes"
+                column_name = "volume"
+                self.tempSorted = reader_obj.sort(self.temp,column_name)
+                self.tree_insert(self.tempSorted)
+            elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
+                collection_name = "CityofCalgary - Traffic Volumes 2"
+                column_name = "volume"
+                self.tempSorted = reader_obj.sort(self.temp,column_name)
+                self.tree_insert(self.tempSorted)
+            elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
+                collection_name = "CityofCalgary - Traffic Volumes 3"
+                column_name = "VOLUME"
+                self.tempSorted = reader_obj.sort(self.temp,column_name)
+                self.tree_insert(self.tempSorted)
+            app.status_box_generator("Successfully Sorted","green2")
+        except AttributeError:
+            app.status_box_generator("Read the data before trying to sort.", "firebrick1")
+        except Exception as e:
+            app.status_box_generator("Unsuccessful Sort" + str(repr(e)), "firebrick1")
 
     #TODO Extra columns still there for Traffic Incident reading and sorting? Left frame doesnt
     #disappear anymore though, (minor bug fix here).
@@ -126,118 +138,136 @@ class GUI:
     # on year selected by user, and the corresponding coordinates, and write a marker to a folium
     # map object showing where this occurs.
     def draw_map(self):
-        reader_obj = rfd.DBReader()
-        if type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
-            column_name = "volume"
-            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
-            coords = re.findall("\d+\.\d+", holding)
-            coordinate1 = float(coords[1])
-            coordinate2 = float(coords[0])
-            coordinate2 = (-1)*coordinate2
-            latlon = [coordinate1, coordinate2]
-            m = folium.Map(location=latlon, zoom_start=12)
-            tooltip = '2016 - Highest Traffic Volume Location'
-            folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
-            m.save('2016TrafficVolumeMap.html')
-        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
-            column_name = "volume"
-            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
-            coords = re.findall("\d+\.\d+", holding)
-            coordinate1 = float(coords[1])
-            coordinate2 = float(coords[0])
-            coordinate2 = (-1)*coordinate2
-            latlon = [coordinate1, coordinate2]
-            m = folium.Map(location=latlon, zoom_start=12)
-            tooltip = '2017 - Highest Traffic Volume Location'
-            folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
-            m.save('2017TrafficVolumeMap.html')
-        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
-            column_name = "VOLUME"
-            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
-            coords = re.findall("\d+\.\d+", holding)
-            coordinate1 = float(coords[1])
-            coordinate2 = float(coords[0])
-            coordinate2 = (-1)*coordinate2
-            latlon = [coordinate1, coordinate2]
-            m = folium.Map(location=latlon, zoom_start=12)
-            tooltip = '2018 - Highest Traffic Volume Location'
-            folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
-            m.save('2018TrafficVolumeMap.html')
-        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
-            column_name = "Count"
-            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
-            coords = re.findall("\d+\.\d+", holding)
-            coordinate1 = float(coords[0])
-            coordinate2 = float(coords[1])
-            coordinate2 = (-1)*coordinate2
-            latlon = [coordinate1, coordinate2]
-            m = folium.Map(location=latlon, zoom_start=12)
-            tooltip = '2016 - Highest Traffic Incidents Location'
-            folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
-            m.save('2016TrafficIncidentsMap.html')
-        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
-            column_name = "Count"
-            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
-            coords = re.findall("\d+\.\d+", holding)
-            coordinate1 = float(coords[0])
-            coordinate2 = float(coords[1])
-            coordinate2 = (-1)*coordinate2
-            latlon = [coordinate1, coordinate2]
-            m = folium.Map(location=latlon, zoom_start=12)
-            tooltip = '2017 - Highest Traffic Incidents Location'
-            folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
-            m.save('2017TrafficIncidentsMap.html')
-        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
-            column_name = "Count"
-            max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-            holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
-            coords = re.findall("\d+\.\d+", holding)
-            coordinate1 = float(coords[0])
-            coordinate2 = float(coords[1])
-            coordinate2 = (-1)*coordinate2
-            latlon = [coordinate1, coordinate2]
-            m = folium.Map(location=latlon, zoom_start=12)
-            tooltip = '2018 - Highest Traffic Incidents Location'
-            folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
-            m.save('2018TrafficIncidentsMap.html')
+        try:
+            reader_obj = rfd.DBReader()
+            if type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
+                column_name = "volume"
+                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                coords = re.findall("\d+\.\d+", holding)
+                coordinate1 = float(coords[1])
+                coordinate2 = float(coords[0])
+                coordinate2 = (-1)*coordinate2
+                latlon = [coordinate1, coordinate2]
+                m = folium.Map(location=latlon, zoom_start=12)
+                tooltip = '2016 - Highest Traffic Volume Location'
+                folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
+                m.save('2016TrafficVolumeMap.html')
+            elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
+                column_name = "volume"
+                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                coords = re.findall("\d+\.\d+", holding)
+                coordinate1 = float(coords[1])
+                coordinate2 = float(coords[0])
+                coordinate2 = (-1)*coordinate2
+                latlon = [coordinate1, coordinate2]
+                m = folium.Map(location=latlon, zoom_start=12)
+                tooltip = '2017 - Highest Traffic Volume Location'
+                folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
+                m.save('2017TrafficVolumeMap.html')
+            elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
+                column_name = "VOLUME"
+                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                coords = re.findall("\d+\.\d+", holding)
+                coordinate1 = float(coords[1])
+                coordinate2 = float(coords[0])
+                coordinate2 = (-1)*coordinate2
+                latlon = [coordinate1, coordinate2]
+                m = folium.Map(location=latlon, zoom_start=12)
+                tooltip = '2018 - Highest Traffic Volume Location'
+                folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
+                m.save('2018TrafficVolumeMap.html')
+            elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
+                column_name = "Count"
+                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                coords = re.findall("\d+\.\d+", holding)
+                coordinate1 = float(coords[0])
+                coordinate2 = float(coords[1])
+                coordinate2 = (-1)*coordinate2
+                latlon = [coordinate1, coordinate2]
+                m = folium.Map(location=latlon, zoom_start=12)
+                tooltip = '2016 - Highest Traffic Incidents Location'
+                folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
+                m.save('2016TrafficIncidentsMap.html')
+            elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
+                column_name = "Count"
+                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                coords = re.findall("\d+\.\d+", holding)
+                coordinate1 = float(coords[0])
+                coordinate2 = float(coords[1])
+                coordinate2 = (-1)*coordinate2
+                latlon = [coordinate1, coordinate2]
+                m = folium.Map(location=latlon, zoom_start=12)
+                tooltip = '2017 - Highest Traffic Incidents Location'
+                folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
+                m.save('2017TrafficIncidentsMap.html')
+            elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
+                column_name = "Count"
+                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                coords = re.findall("\d+\.\d+", holding)
+                coordinate1 = float(coords[0])
+                coordinate2 = float(coords[1])
+                coordinate2 = (-1)*coordinate2
+                latlon = [coordinate1, coordinate2]
+                m = folium.Map(location=latlon, zoom_start=12)
+                tooltip = '2018 - Highest Traffic Incidents Location'
+                folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
+                m.save('2018TrafficIncidentsMap.html')
+            app.status_box_generator("Map HTML Successfully Generated","green2")
+        except Exception as e:
+            app.status_box_generator("Unsuccessful Map Generation:" + str(repr(e)), "firebrick1")
+
 
 
 # Function to insert an embedded histogram into the window
 # TODO: Can we make the plot go away if we try to read new data?
     def insert_hist(self):
-        analyzer_object = rfd.Analyzer()
-        list_x = ["2016", "2017", "2018"]
-        if type_combo.get() == "Traffic Incidents":
-            data = {"Years": list_x, "Traffic Incidents": analyzer_object.read_all_traffic_incidents()}
-            df = DataFrame(data, columns=["Years", "Traffic Incidents"])
-            figure = plt.Figure(figsize=(1, 1), dpi=80)
-            ax1 = figure.add_subplot(111)
-            ax1.set_ylabel("Incidents")
-            bar1 = FigureCanvasTkAgg(figure, master=frame_right)
-            bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
-            df = df[['Years', 'Traffic Incidents']].groupby('Years').sum()
-            df.plot(kind='bar', legend=True, ax=ax1)
-            ax1.set_title('Year vs Traffic Incidents')
+        try:
+            analyzer_object = rfd.Analyzer()
+            list_x = ["2016", "2017", "2018"]
+            if type_combo.get() == "Traffic Incidents":
+                data = {"Years": list_x, "Traffic Incidents": analyzer_object.read_all_traffic_incidents()}
+                df = DataFrame(data, columns=["Years", "Traffic Incidents"])
+                figure = plt.Figure(figsize=(1, 1), dpi=80)
+                ax1 = figure.add_subplot(111)
+                ax1.set_ylabel("Incidents")
+                bar1 = FigureCanvasTkAgg(figure, master=frame_right)
+                bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
+                df = df[['Years', 'Traffic Incidents']].groupby('Years').sum()
+                df.plot(kind='bar', legend=True, ax=ax1)
+                ax1.set_title('Year vs Traffic Incidents')
+            elif type_combo.get() == "Traffic Volume":
+                data = {"Years": list_x, "Traffic Volume": analyzer_object.read_all_traffic_volumes()}
+                df = DataFrame(data, columns=["Years", "Traffic Volume"])
+                figure = plt.Figure(figsize=(1, 1), dpi=80)
+                ax1 = figure.add_subplot(111)
+                ax1.set_ylabel("Volume")
+                ax1.ticklabel_format(useOffset=False, style='plain')            # gets rid of scientific notation
+                bar1 = FigureCanvasTkAgg(figure, master=frame_right)
+                bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
+                df = df[['Years', 'Traffic Volume']].groupby('Years').sum()
+                df.plot(kind='bar', legend=True, ax=ax1)
+                ax1.set_title('Year vs Traffic Volumes')
+            app.status_box_generator("Analysis Successfully Generated","green2")
+        except Exception as e:
+            app.status_box_generator("Unsuccessful Analysis: " + str(repr(e)),"firebrick1")
 
-
-        elif type_combo.get() == "Traffic Volume":
-            data = {"Years": list_x, "Traffic Volume": analyzer_object.read_all_traffic_volumes()}
-            df = DataFrame(data, columns=["Years", "Traffic Volume"])
-            figure = plt.Figure(figsize=(1, 1), dpi=80)
-            ax1 = figure.add_subplot(111)
-            ax1.set_ylabel("Volume")
-            ax1.ticklabel_format(useOffset=False, style='plain')            # gets rid of scientific notation
-            bar1 = FigureCanvasTkAgg(figure, master=frame_right)
-            bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
-            df = df[['Years', 'Traffic Volume']].groupby('Years').sum()
-            df.plot(kind='bar', legend=True, ax=ax1)
-            ax1.set_title('Year vs Traffic Volumes')
-
+    def status_box_generator(self, message, color):
+        status_box = tk.Label(
+            master=frame_left,
+            height=5,
+            width=25,
+            wraplength=120,
+            relief="solid",
+            text=message,
+            bg=color
+        )
+        status_box.grid(row=7, column=0, padx=5, pady=5, sticky="n")
 
 if __name__ == "__main__":
 
@@ -333,15 +363,7 @@ if __name__ == "__main__":
     status_label.grid(row=6, column=0, padx=5, sticky="w")
 
     #TODO: Need to build Status box functionality
-    status_box = tk.Label(  # Build the status message box
-        master=frame_left,
-        height=3,
-        width=16,
-        wraplength=85,
-        relief="solid",
-        text="Successfully read from DB",
-        bg="green2"
-    )
-    status_box.grid(row=7, column=0, padx=5, pady=5, sticky="n")
+    app.status_box_generator("","white")
+
 
     window.mainloop()
