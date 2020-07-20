@@ -84,14 +84,21 @@ class DBReader:
         return temp
     
     # This function will return the number of incidents at the location with the maximum incidents
-    def get_max_count(self,data_struct):
-        temp = data_struct['Count'].max()
+    def get_max_count(self,data_struct,column_head):
+        temp = data_struct[column_head].max()
         return temp
     
     # This function will return the coordinates for the location that the maximum number of incidents occurs at
-    def get_max_coords(self,data_struct,max_count):
-        temp = data_struct.loc[data_struct.Count == max_count,'location'].tolist()[0]
-        return temp
+    def get_max_coords(self,data_struct,max_count,column_name):
+        if column_name == "volume":
+            temp = data_struct.loc[data_struct.volume == max_count,'the_geom'].tolist()[0]
+            return temp
+        if column_name == "VOLUME":
+            temp = data_struct.loc[data_struct.VOLUME == max_count,'multilinestring'].tolist()[0]
+            return temp
+        if column_name == "Traffic Incident":
+            temp = data_struct.loc[data_struct.Count == max_count,'location'].tolist()[0]
+            return temp
 
 
 class Analyzer:
@@ -184,69 +191,3 @@ class Analyzer:
         sum_list = [val1,val2,val3]
         return sum_list
 
-    # This function will take 2 lists (representing sums of counts for 2016, 2017, and 2018), a y_axis
-    # label (as the dependent variables will be different from the constant x_axis points (years)), and
-    # a chart title, and will create a bar graph using the list contents provided 
-    def bar_plot(self,list_x,list_y,y_axis_label,title):
-        y_pos = np.arange(len(list_x))
-        plt.bar(y_pos, list_y, width=0.5, align='center')
-        plt.xticks(y_pos, list_x)
-        plt.gcf().axes[0].yaxis.get_major_formatter().set_scientific(False)
-        plt.xlabel('Years')         # this x_axis will not change
-        plt.ylabel(y_axis_label)    # y_axis_label to be passed by object calling the function
-        plt.title(title)            # title to be passed by object calling the function
-        plt.show()                  # makes the chart appear on screen
-
-
-# if __name__ == "__main__":
-#     # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
-#     cluster = pymongo.MongoClient("mongodb+srv://User_1:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
-#     #clairifies database that will be used for this application
-#     db = cluster["ENSF592-DataCity"]
-
-#     ####################################################################################################
-
-#     # Instantiate the DBReader class
-#     db_reader = DBReader()
-
-#     ## TODO will need to have the selection the user makes populate this function parameter
-#     ## ie, if user selects traffic volume and year 2017, we will need to pass "CityofCalgary - Traffic Volumes"
-#     ## collection to this argument in order to fetch the correct data from the db
-#     # this will pass the collection to be read from (off of the db) specific to what the user requests
-#     collection_name = "CityofCalgary - Traffic Incidents 3"
-#     temp_raw = db_reader.traffic_volumes(collection_name)
-#     # print("Raw input data:")
-#     # print(temp_raw)
-
-#     # if sort button is clicked
-#     # if collection_name == "CityofCalgary - Traffic Volumes" or collection_name == "CityofCalgary - Traffic Volumes 2":
-#     #     temp_sorted = db_reader.sort(temp_raw,'volume')
-#     # if collection_name == "CityofCalgary - Traffic Volumes 3":
-#     #     temp_sorted = db_reader.sort(temp_raw,'VOLUME')
-#     # if collection_name == "CityofCalgary - Traffic Incidents" or collection_name == "CityofCalgary - Traffic Incidents2" or collection_name == "CityofCalgary - Traffic Incidents 3":
-#     # #TODO Need to create a grouping function here for incidents and call it with temp_raw
-#     #      temp_sorted = db_reader.sort(group_by_count(temp_raw,'INCIDENT INFO'),'Count')
-    
-#     oof = db_reader.group_by_count(temp_raw,'INCIDENT INFO')
-#     # print("Grouped by Count Return:")
-#     # print(oof)
-#     # print("Sorted Counted :")
-#     eef = db_reader.sort(oof,'Count')
-
-#     max_accidents = db_reader.get_max_count(eef)
-#     max_accidents_coords = db_reader.get_max_coords(eef,max_accidents)
-#     print(max_accidents_coords)
-  
-#     # temp = db_reader.traffic_incidents("CityofCalgary - Traffic Incidents")
-#     # print(temp)
-
-#     # file_analyzer = Analyzer()
-
-#     # other = file_analyzer.read_all_traffic_volumes()
-#     # print(other)
-#     # years = ["2016", "2017", "2018"]
-#     # file_analyzer.bar_plot(years, other,"Total Traffic Volumes","Calgary Traffic Volume Counts")
-
-#     # other1 = file_analyzer.read_all_traffic_incidents()
-#     # print(other1)
-#     # file_analyzer.bar_plot(years, other1,"Total Traffic Incidents","Calgary Traffic Incident Counts")
