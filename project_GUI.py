@@ -4,9 +4,18 @@ The purpose of this program is to build the GUI that will read, sort, and analyz
 
 import tkinter as tk
 from tkinter import ttk
+from tkinter.tix import ScrolledWindow
+import matplotlib
+
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+import pandas
 import read_from_db as rfd
 import pymongo
 from pymongo import MongoClient
+from pandas import DataFrame
+import matplotlib.pyplot as plt
 
 
 class GUI:
@@ -39,34 +48,99 @@ class GUI:
             temp = reader_obj.traffic_volumes(collection_name)
             self.tree_insert(temp)
 
+    ## TODO Figure out how to pass the temp objects created and held in the data_types read function
+    ## , might need to also make the object instance accessible between functions as well
+    def data_sort(self):
+        reader_obj = rfd.DBReader()  # Object used to do things
+        if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
+            collection_name = "CityofCalgary - Traffic Incidents"
+            column_name = "Count"
+            temp2 = reader_obj.traffic_incidents(collection_name)
+            temp1 = reader_obj.group_by_count(temp2, column_name)
+            temp = reader_obj.sort(temp1, column_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
+            collection_name = "CityofCalgary - Traffic Incidents 2"
+            column_name = "Count"
+            temp2 = reader_obj.traffic_incidents(collection_name)
+            temp1 = reader_obj.group_by_count(temp2, column_name)
+            temp = reader_obj.sort(temp1, column_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
+            collection_name = "CityofCalgary - Traffic Incidents 3"
+            column_name = "Count"
+            temp2 = reader_obj.traffic_incidents(collection_name)
+            temp1 = reader_obj.group_by_count(temp2, column_name)
+            temp = reader_obj.sort(temp1, column_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
+            collection_name = "CityofCalgary - Traffic Volumes"
+            column_name = "volume"
+            temp1 = reader_obj.traffic_incidents(collection_name)
+            temp = reader_obj.sort(temp1, column_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
+            collection_name = "CityofCalgary - Traffic Volumes 2"
+            column_name = "volume"
+            temp1 = reader_obj.traffic_incidents(collection_name)
+            temp = reader_obj.sort(temp1, column_name)
+            self.tree_insert(temp)
+        elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
+            collection_name = "CityofCalgary - Traffic Volumes 3"
+            column_name = "VOLUME"
+            temp1 = reader_obj.traffic_incidents(collection_name)
+            temp = reader_obj.sort(temp1, column_name)
+            self.tree_insert(temp)
+
     # Specifies column layout and headers depending on the combobox selections
     def tree_insert(self, df):  # df is the data frame object
 
         df_col = df.columns.values
+
+        tree["show"] = "headings"
         tree["columns"] = df_col
         counter = len(df)
 
         rowLabels = df.index.tolist()
-        for x in range(0, len(df_col)):
-            tree.column(x, width=80)
+        for x in range(len(df_col)):
+
+            tree.column(x, width=80, minwidth=80)
             tree.heading(x, text=df_col[x])
             for i in range(counter):
                 tree.insert('', i, text=rowLabels[i], values=df.iloc[i, :].tolist())
 
         tree.grid(row=0, column=1, sticky="nsew")
 
-        # elif type_combo.get() == "Traffic Incidents" and (year_combo.get() == "2016" or year_combo.get == "2017"):
-        #     tree2.grid(row=0, column=1, sticky="nwes")
+# Function to insert an embedded histogram into the window
+# Can we make the plot go away if we try to read new data?
+    def insert_hist(self):
 
-        # elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
-        #     tree3.grid(row=0, column=1, sticky="nwes")
+        analyzer_object = rfd.Analyzer()
+        list_x = ["2016", "2017", "2018"]
+        if type_combo.get() == "Traffic Incidents":
+            data = {"Years": list_x, "Traffic Incidents": analyzer_object.read_all_traffic_incidents()}
+            df = DataFrame(data, columns=["Years", "Traffic Incidents"])
+            figure = plt.Figure(figsize=(3, 3), dpi=100)
+            ax1 = figure.add_subplot(111)
+            bar1 = FigureCanvasTkAgg(figure, master=window)
+            bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
+            df = df[['Years', 'Traffic Incidents']].groupby('Years').sum()
+            df.plot(kind='bar', legend=True, ax=ax1)
+            ax1.set_title('Year vs Traffic Incidents')
+
+        elif type_combo.get() == "Traffic Volume":
+            data = {"Years": list_x, "Traffic Volume": analyzer_object.read_all_traffic_volumes()}
+            df = DataFrame(data, columns=["Years", "Traffic Volume"])
+            figure = plt.Figure(figsize=(3, 3), dpi=100)
+            ax1 = figure.add_subplot(111)
+            bar1 = FigureCanvasTkAgg(figure, master=window)
+            bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
+            df = df[['Years', 'Traffic Volume']].groupby('Years').sum()
+            df.plot(kind='bar', legend=True, ax=ax1)
+            ax1.set_title('Year vs Traffic Volumes')
 
 
 if __name__ == "__main__":
-    # # connects to the cluster hosted on MongoDB Atlas (cloud database created for this project)
-    # cluster = pymongo.MongoClient("mongodb+srv://User_1:1234@cluster-project.mmhhg.mongodb.net/ENSF592-DataCity?retryWrites=true&w=majority")
-    # # clarifies database that will be used for this application
-    # db = cluster["ENSF592-DataCity"]
 
     # Instantiate the GUI class
     app = GUI()
@@ -75,10 +149,12 @@ if __name__ == "__main__":
     window.title("Traffic Analysis")
     window.columnconfigure([0, 1], weight=1)
     window.rowconfigure(0, weight=1)
+    window.geometry("1200x500")
+    window.resizable(height=None, width=None)
 
-    frame_left = tk.Frame(master=window, width=250, height=400,
+    frame_left = tk.Frame(master=window, width=100, height=400,
                           bg="gray55")  # build the left frame that will hold all the buttons
-    frame_left.columnconfigure(0, weight=1)
+    frame_left.columnconfigure(0, weight=1, minsize=100)
     frame_left.rowconfigure([0, 7], weight=1)
     frame_left.grid(column=0, sticky="nsew")
 
@@ -86,6 +162,11 @@ if __name__ == "__main__":
     frame_right.columnconfigure(1, weight=1)
     frame_right.rowconfigure(0, weight=1)
     frame_right.grid(column=1, sticky="nsew")
+
+    # SBarY = tk.Scrollbar(master=window)
+    # SBarY.grid(row=0, column=1, sticky="ne")
+    # SBarX = tk.Scrollbar(master=window, orient=tk.HORIZONTAL)
+    # SBarX.grid(row=0, column=1, sticky="sw")
 
     type_combo = ttk.Combobox(
         values=["Traffic Volume", "Traffic Incidents"],  # Data type combobox
@@ -121,7 +202,8 @@ if __name__ == "__main__":
         master=frame_left,
         text="Sort",
         activebackground="tomato",
-        width=16
+        width=16,
+        command=app.data_sort
     )
     sort_btn.grid(row=3, column=0, padx=5, pady=5)
 
@@ -130,7 +212,8 @@ if __name__ == "__main__":
         master=frame_left,
         text="Analysis",
         activebackground="tomato",
-        width=16
+        width=16,
+        command=app.insert_hist
     )
     analysis_btn.grid(row=4, column=0, padx=5, pady=5)
 
