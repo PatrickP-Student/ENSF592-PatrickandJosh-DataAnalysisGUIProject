@@ -1,6 +1,11 @@
-"""
-The purpose of this program is to build the GUI that will read, sort, and analyze the provided traffic data.
-"""
+'''
+Filename: project_GUI.py
+Author: Joshua Posyluzny, Patrick Pickard
+Date: July 17, 2020 - Friday
+Description: The purpose of this file is to build the GUI that will handle the inputs from the
+user, and display the calculated and processed data in the desired format to the user via a GUI that
+will be created.
+'''
 
 import tkinter as tk
 from tkinter import ttk
@@ -24,16 +29,17 @@ import traceback
 
 class GUI:
 
-    # gives objects holding the dataframes full class scope so we don't need to read them from the
-    # db everytime we want to do something with thme
+    # gives objects we will need to use multiple times and in multiple locations
+    # full class scope so we don't need to create new ones everytime we need to do
+    # something different
     def __init__(self):
         self.temp = None
         self.tempSorted = None
         self.analyzer_object = rfd.Analyzer()
-        self.reader_obj = rfd.DBReader() # Object used to do things
+        self.reader_obj = rfd.DBReader() 
 
-
-    # Returns collection_name string for read_from_db's method parameters based on the selection of the comboboxes
+    # Returns collection_name string for read_from_db's method parameters based on the 
+    # selection of the comboboxes
     def data_types(self):
         # Each statement accounts for a scenario based on the users choice in the combo-boxes
         # and returns the corresponding dataframe displayed in the GUI
@@ -76,8 +82,6 @@ class GUI:
             app.status_box_generator("Cannot connect to database.", "firebrick1")
         except Exception as e:
             app.status_box_generator("Unsuccessful Read: " + str(repr(e)), "firebrick1")
-
-
 
     # This function will take the dataframe object currently read and sort it based on descending order
     # from Incident Count or Traffic Volume
@@ -133,10 +137,9 @@ class GUI:
         except Exception as e:
             app.status_box_generator("Unsuccessful Sort" + str(repr(e)), "firebrick1")
 
-    #TODO Extra columns still there for Traffic Incident reading and sorting? Left frame doesnt
-    #disappear anymore though, (minor bug fix here).
     # Specifies column layout and headers depending on the combobox selections and physically builds
     # the chart display from the dataframe data to the GUI.
+    #TODO: Josh, can you explain this code a block here, add some comments for each step
     def tree_insert(self,df): #df is the data frame object
         df_col = df.columns.values
         tree["show"] = "headings"
@@ -153,26 +156,43 @@ class GUI:
         tree.grid(row=0, column=1, sticky = "nsew")
         
 
-    #############################################################################################
     # This function will get the max values for either traffic volume or traffic incidents, based
     # on year selected by user, and the corresponding coordinates, and write a marker to a folium
-    # map object showing where this occurs.
+    # map object showing where this occurs. **Only the first block of code has been commented thoroughly
+    # so as to explain the methodology behind this function, but the same exact process applies
+    # to all of the if/elif code blocks in this function.
     def draw_map(self):
         try:
+            # for Traffic Volumes - 2016 file
             if type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
+                # specifies the column name we are searching for the max value in
                 column_name = "volume"
+                # calls the get_max_count function
                 max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
+                # calls the get_max_coords function
                 holding = self.reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                # parses the coordinates multilinestring to return the only numbers
                 coords = re.findall("\d+\.\d+", holding)
+                # this will fetch the first 2 numbers from the above string (which will be the x and
+                # y coordinates). This will be for the highest volume location as this list as been 
+                # sorted already based on that criteria
                 coordinate1 = float(coords[1])
                 coordinate2 = float(coords[0])
+                # flips the hemisphere to northern hemisphere
                 coordinate2 = (-1)*coordinate2
+                # creates a list of these coordinates
                 latlon = [coordinate1, coordinate2]
+                # builds the folium map
                 m = folium.Map(location=latlon, zoom_start=12)
+                # specifies the string to be displayed when mouse is hovered over the marker on map
                 tooltip = '2016 - Highest Traffic Volume Location'
+                # set the marker on the map based on the above coordinates
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
+                # saves the created .html file locally
                 m.save('2016TrafficVolumeMap.html')
+                # updates the status box to display a successful map generation
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
+            # for Traffic Volumes - 2017 file
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
                 column_name = "volume"
                 max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
@@ -187,6 +207,7 @@ class GUI:
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2017TrafficVolumeMap.html')
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
+            # for Traffic Volumes - 2018 file
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
                 column_name = "VOLUME"
                 max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
@@ -201,6 +222,7 @@ class GUI:
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2018TrafficVolumeMap.html')
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
+            # for Traffic Incidents - 2016 file
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
                 column_name = "Count"
                 max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
@@ -215,6 +237,7 @@ class GUI:
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2016TrafficIncidentsMap.html')
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
+            # for Traffic Incidents - 2017 file
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
                 column_name = "Count"
                 max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
@@ -229,6 +252,7 @@ class GUI:
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2017TrafficIncidentsMap.html')
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
+            # for Traffic Incidents - 2018 file
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
                 column_name = "Count"
                 max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
@@ -243,8 +267,10 @@ class GUI:
                 folium.Marker(location=latlon, popup='<strong>Location One</strong>',tooltip=tooltip).add_to(m)
                 m.save('2018TrafficIncidentsMap.html')
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
+            # Lets the user know they need to select options from the combo boxes to create a map
             elif self.temp == None:
                 app.status_box_generator("Must select data in both dropdown boxes.", "firebrick1")
+        # error handling and displaying sections
         except TypeError:
             app.status_box_generator("Must read and sort data before generating map.", "firebrick1")
         except KeyError:
@@ -252,9 +278,7 @@ class GUI:
         except Exception as e:
             app.status_box_generator("Unsuccessful Map Generation:" + str(repr(e)), "firebrick1")
 
-
 # Function to insert an embedded histogram into the window
-# TODO: Can we make the plot go away if we try to read new data?
     def insert_hist(self):
         try:
             list_x = ["2016", "2017", "2018"]
@@ -288,7 +312,7 @@ class GUI:
         except NameError:
             app.status_box_generator("Error with data in database.", "firebrick1")
         except KeyError:
-            app.status_box_generator("Please sort data before writing to map.", "firebrick1")
+            app.status_box_generator("ERROR.", "firebrick1")
         except pymongo.errors.ConfigurationError:
             app.status_box_generator("Cannot connect to database.", "firebrick1")
         except Exception as e:
@@ -416,6 +440,5 @@ if __name__ == "__main__":
 
     #TODO: Need to build Status box functionality
     app.status_box_generator("","white")
-
 
     window.mainloop()
