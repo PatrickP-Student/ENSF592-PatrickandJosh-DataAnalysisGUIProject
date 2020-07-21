@@ -41,6 +41,8 @@ collection1.insert_one(records1) ######## THIS WILL UPLOAD THE DICTS TO THE DB
 collection2 = db["CityofCalgary - Traffic Incidents 2"]
 df2 = pd.read_csv("Traffic_Incidents_Archive_2017.csv")
 df2 = df2[['INCIDENT INFO', 'DESCRIPTION', 'START_DT', 'MODIFIED_DT', 'QUADRANT', 'Longitude', 'Latitude', 'location', 'Count']]
+# removes the 2018 rows from this file
+df2 = df2[~df2.START_DT.str.contains("/2018 ")]
 records2 = df2.to_dict(orient = 'list')
 collection2.insert_one(records2) ######## THIS WILL UPLOAD THE DICTS TO THE DB
 
