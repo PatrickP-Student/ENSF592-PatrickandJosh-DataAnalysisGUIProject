@@ -4,6 +4,7 @@ The purpose of this program is to build the GUI that will read, sort, and analyz
 
 import tkinter as tk
 from tkinter import ttk
+from tkinter import *
 
 import matplotlib
 
@@ -40,27 +41,34 @@ class GUI:
                 collection_name = "CityofCalgary - Traffic Incidents"
                 self.temp = reader_obj.traffic_incidents(collection_name)
                 self.tree_insert(self.temp)
+                app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
                 collection_name = "CityofCalgary - Traffic Incidents 2"
                 self.temp = reader_obj.traffic_incidents(collection_name)
                 self.tree_insert(self.temp)
+                app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
                 collection_name = "CityofCalgary - Traffic Incidents 3"
                 self.temp = reader_obj.traffic_incidents(collection_name)
                 self.tree_insert(self.temp)
+                app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
                 collection_name = "CityofCalgary - Traffic Volumes"
                 self.temp = reader_obj.traffic_volumes(collection_name)
                 self.tree_insert(self.temp)
+                app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
                 collection_name = "CityofCalgary - Traffic Volumes 2"
                 self.temp = reader_obj.traffic_volumes(collection_name)
                 self.tree_insert(self.temp)
+                app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
                 collection_name = "CityofCalgary - Traffic Volumes 3"
                 self.temp = reader_obj.traffic_volumes(collection_name)
                 self.tree_insert(self.temp)
-            app.status_box_generator("Successfully Read From DB", "green2")
+                app.status_box_generator("Successfully Read From DB", "green2")
+            elif type_combo.get() == "" or year_combo.get() == "":
+                app.status_box_generator("Must select data in both dropdown boxes.", "firebrick1")
         except NameError:
             app.status_box_generator("Error with data in database.", "firebrick1")
         except pymongo.errors.ConfigurationError:
@@ -85,34 +93,41 @@ class GUI:
                 self.temp1 = reader_obj.group_by_count(self.temp,column_name)
                 self.tempSorted = reader_obj.sort(self.temp1,column_name)
                 self.tree_insert(self.tempSorted)
+                app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
                 collection_name = "CityofCalgary - Traffic Incidents 2"
                 column_name = "Count"
                 self.temp1 = reader_obj.group_by_count(self.temp,column_name)
                 self.tempSorted = reader_obj.sort(self.temp1,column_name)
                 self.tree_insert(self.tempSorted)
+                app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
                 collection_name = "CityofCalgary - Traffic Incidents 3"
                 column_name = "Count"
                 self.temp1 = reader_obj.group_by_count(self.temp,column_name)
                 self.tempSorted = reader_obj.sort(self.temp1,column_name)
                 self.tree_insert(self.tempSorted)
+                app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
                 collection_name = "CityofCalgary - Traffic Volumes"
                 column_name = "volume"
                 self.tempSorted = reader_obj.sort(self.temp,column_name)
                 self.tree_insert(self.tempSorted)
+                app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
                 collection_name = "CityofCalgary - Traffic Volumes 2"
                 column_name = "volume"
                 self.tempSorted = reader_obj.sort(self.temp,column_name)
                 self.tree_insert(self.tempSorted)
+                app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
                 collection_name = "CityofCalgary - Traffic Volumes 3"
                 column_name = "VOLUME"
                 self.tempSorted = reader_obj.sort(self.temp,column_name)
                 self.tree_insert(self.tempSorted)
-            app.status_box_generator("Successfully Sorted","green2")
+                app.status_box_generator("Successfully Sorted","green2")
+            elif type_combo.get() == "" or year_combo.get() == "":
+                app.status_box_generator("Must select data in both dropdown boxes.", "firebrick1")
         except KeyError:
             app.status_box_generator("Must sort the same file that has been read.", "firebrick1")
         except AttributeError:
@@ -235,6 +250,8 @@ class GUI:
                 app.status_box_generator("Must select data in both dropdown boxes.", "firebrick1")
         except TypeError:
             app.status_box_generator("Must read and sort data before generating map.", "firebrick1")
+        except KeyError:
+            app.status_box_generator("Please sort data before writing to map.", "firebrick1")
         except Exception as e:
             app.status_box_generator("Unsuccessful Map Generation:" + str(repr(e)), "firebrick1")
 
@@ -251,11 +268,12 @@ class GUI:
                 figure = plt.Figure(figsize=(1, 1), dpi=80)
                 ax1 = figure.add_subplot(111)
                 ax1.set_ylabel("Incidents")
-                bar1 = FigureCanvasTkAgg(figure, master=frame_right)
-                bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
+                self.bar1 = FigureCanvasTkAgg(figure, master=frame_right)
+                self.bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
                 df = df[['Years', 'Traffic Incidents']].groupby('Years').sum()
                 df.plot(kind='bar', legend=True, ax=ax1)
                 ax1.set_title('Year vs Traffic Incidents')
+                app.status_box_generator("Analysis Successfully Generated","green2")
             elif type_combo.get() == "Traffic Volume":
                 data = {"Years": list_x, "Traffic Volume": analyzer_object.read_all_traffic_volumes()}
                 df = DataFrame(data, columns=["Years", "Traffic Volume"])
@@ -263,14 +281,18 @@ class GUI:
                 ax1 = figure.add_subplot(111)
                 ax1.set_ylabel("Volume")
                 ax1.ticklabel_format(useOffset=False, style='plain')            # gets rid of scientific notation
-                bar1 = FigureCanvasTkAgg(figure, master=frame_right)
-                bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
+                self.bar1 = FigureCanvasTkAgg(figure, master=frame_right)
+                self.bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
                 df = df[['Years', 'Traffic Volume']].groupby('Years').sum()
                 df.plot(kind='bar', legend=True, ax=ax1)
                 ax1.set_title('Year vs Traffic Volumes')
-            app.status_box_generator("Analysis Successfully Generated","green2")
+                app.status_box_generator("Analysis Successfully Generated","green2")
+            elif type_combo.get() == "":
+                app.status_box_generator("Must select data in both dropdown boxes.", "firebrick1")
         except NameError:
             app.status_box_generator("Error with data in database.", "firebrick1")
+        except KeyError:
+            app.status_box_generator("Please sort data before writing to map.", "firebrick1")
         except pymongo.errors.ConfigurationError:
             app.status_box_generator("Cannot connect to database.", "firebrick1")
         except Exception as e:
@@ -286,7 +308,12 @@ class GUI:
             text=message,
             bg=color
         )
-        status_box.grid(row=7, column=0, padx=5, pady=5, sticky="n")
+        status_box.grid(row=8, column=0, padx=5, pady=5, sticky="n")
+    
+    # This function will clear the widget object created to display the bar plot when the Analysis button
+    # is clicked.
+    def clear(self):
+        self.bar1.get_tk_widget().destroy()
 
 if __name__ == "__main__":
 
@@ -303,7 +330,7 @@ if __name__ == "__main__":
     frame_left = tk.Frame(master=window, width=100, height=400,
                           bg="gray55")  # build the left frame that will hold all the buttons
     frame_left.columnconfigure(0, weight=1, minsize=200)
-    frame_left.rowconfigure([0, 7], weight=1, minsize=100)
+    frame_left.rowconfigure([0, 8], weight=1, minsize=100)
     frame_left.grid(column=0, sticky="nsew")
     frame_left.grid_propagate(False)
 
@@ -374,12 +401,22 @@ if __name__ == "__main__":
     )
     map_btn.grid(row=5, column=0, padx=5, pady=5)
 
+    clear_btn = tk.Button(  # Build Clear button
+        relief="solid",
+        master=frame_left,
+        text="Clear",
+        activebackground="tomato",
+        width=16,
+        command = app.clear
+    )
+    clear_btn.grid(row=6, column=0, padx=5, pady=5)
+
     status_label = tk.Label(  # Build status label
         master=frame_left,
         text="Status:",
         bg="gray55"
     )
-    status_label.grid(row=6, column=0, padx=5, sticky="w")
+    status_label.grid(row=7, column=0, padx=5, sticky="w")
 
     #TODO: Need to build Status box functionality
     app.status_box_generator("","white")

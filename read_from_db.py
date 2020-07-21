@@ -14,12 +14,6 @@ import numpy as np
 
 #******************************************************************************************************#
 
-#TODO LIST: Need to figure out how we are going to sort incidents for the max value, and implement method
-##Ideas - Possibly append data to a new list, count instances (of whatever our criteria is to be), and 
-## return the max value? ****How is this value/location max incidents value to be "displayed"
-
-#******************************************************************************************************#
-
 class DBReader:
 
 
