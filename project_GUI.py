@@ -29,42 +29,43 @@ class GUI:
     def __init__(self):
         self.temp = None
         self.tempSorted = None
+        self.analyzer_object = rfd.Analyzer()
+        self.reader_obj = rfd.DBReader() # Object used to do things
 
 
     # Returns collection_name string for read_from_db's method parameters based on the selection of the comboboxes
     def data_types(self):
-        reader_obj = rfd.DBReader() # Object used to do things
         # Each statement accounts for a scenario based on the users choice in the combo-boxes
         # and returns the corresponding dataframe displayed in the GUI
         try:
             if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
                 collection_name = "CityofCalgary - Traffic Incidents"
-                self.temp = reader_obj.traffic_incidents(collection_name)
+                self.temp = self.reader_obj.traffic_incidents(collection_name)
                 self.tree_insert(self.temp)
                 app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
                 collection_name = "CityofCalgary - Traffic Incidents 2"
-                self.temp = reader_obj.traffic_incidents(collection_name)
+                self.temp = self.reader_obj.traffic_incidents(collection_name)
                 self.tree_insert(self.temp)
                 app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
                 collection_name = "CityofCalgary - Traffic Incidents 3"
-                self.temp = reader_obj.traffic_incidents(collection_name)
+                self.temp = self.reader_obj.traffic_incidents(collection_name)
                 self.tree_insert(self.temp)
                 app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
                 collection_name = "CityofCalgary - Traffic Volumes"
-                self.temp = reader_obj.traffic_volumes(collection_name)
+                self.temp = self.reader_obj.traffic_volumes(collection_name)
                 self.tree_insert(self.temp)
                 app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
                 collection_name = "CityofCalgary - Traffic Volumes 2"
-                self.temp = reader_obj.traffic_volumes(collection_name)
+                self.temp = self.reader_obj.traffic_volumes(collection_name)
                 self.tree_insert(self.temp)
                 app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
                 collection_name = "CityofCalgary - Traffic Volumes 3"
-                self.temp = reader_obj.traffic_volumes(collection_name)
+                self.temp = self.reader_obj.traffic_volumes(collection_name)
                 self.tree_insert(self.temp)
                 app.status_box_generator("Successfully Read From DB", "green2")
             elif type_combo.get() == "" or year_combo.get() == "":
@@ -81,49 +82,46 @@ class GUI:
     # This function will take the dataframe object currently read and sort it based on descending order
     # from Incident Count or Traffic Volume
     def data_sort(self):
-        reader_obj = rfd.DBReader() # Object used to do things
         # Each statement accounts for a scenario based on the users choice in the combo-boxes
         # and returns the corresponding dataframe displayed in the GUI.
-        #### TODO: THE DATA MUST BE READ BEFORE IT CAN BE SORTED. NEED TO THROW AN ERROR IN THE STATUS
-        #### STATUS WINDOW IF IT IS NOT
         try:
             if type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
                 collection_name = "CityofCalgary - Traffic Incidents"
                 column_name = "Count"
-                self.temp1 = reader_obj.group_by_count(self.temp,column_name)
-                self.tempSorted = reader_obj.sort(self.temp1,column_name)
+                self.temp1 = self.reader_obj.group_by_count(self.temp,column_name)
+                self.tempSorted = self.reader_obj.sort(self.temp1,column_name)
                 self.tree_insert(self.tempSorted)
                 app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
                 collection_name = "CityofCalgary - Traffic Incidents 2"
                 column_name = "Count"
-                self.temp1 = reader_obj.group_by_count(self.temp,column_name)
-                self.tempSorted = reader_obj.sort(self.temp1,column_name)
+                self.temp1 = self.reader_obj.group_by_count(self.temp,column_name)
+                self.tempSorted = self.reader_obj.sort(self.temp1,column_name)
                 self.tree_insert(self.tempSorted)
                 app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
                 collection_name = "CityofCalgary - Traffic Incidents 3"
                 column_name = "Count"
-                self.temp1 = reader_obj.group_by_count(self.temp,column_name)
-                self.tempSorted = reader_obj.sort(self.temp1,column_name)
+                self.temp1 = self.reader_obj.group_by_count(self.temp,column_name)
+                self.tempSorted = self.reader_obj.sort(self.temp1,column_name)
                 self.tree_insert(self.tempSorted)
                 app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
                 collection_name = "CityofCalgary - Traffic Volumes"
                 column_name = "volume"
-                self.tempSorted = reader_obj.sort(self.temp,column_name)
+                self.tempSorted = self.reader_obj.sort(self.temp,column_name)
                 self.tree_insert(self.tempSorted)
                 app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
                 collection_name = "CityofCalgary - Traffic Volumes 2"
                 column_name = "volume"
-                self.tempSorted = reader_obj.sort(self.temp,column_name)
+                self.tempSorted = self.reader_obj.sort(self.temp,column_name)
                 self.tree_insert(self.tempSorted)
                 app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
                 collection_name = "CityofCalgary - Traffic Volumes 3"
                 column_name = "VOLUME"
-                self.tempSorted = reader_obj.sort(self.temp,column_name)
+                self.tempSorted = self.reader_obj.sort(self.temp,column_name)
                 self.tree_insert(self.tempSorted)
                 app.status_box_generator("Successfully Sorted","green2")
             elif type_combo.get() == "" or year_combo.get() == "":
@@ -161,11 +159,10 @@ class GUI:
     # map object showing where this occurs.
     def draw_map(self):
         try:
-            reader_obj = rfd.DBReader()
             if type_combo.get() == "Traffic Volume" and year_combo.get() == "2016":
                 column_name = "volume"
-                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = self.reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
                 coords = re.findall("\d+\.\d+", holding)
                 coordinate1 = float(coords[1])
                 coordinate2 = float(coords[0])
@@ -178,8 +175,8 @@ class GUI:
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2017":
                 column_name = "volume"
-                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = self.reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
                 coords = re.findall("\d+\.\d+", holding)
                 coordinate1 = float(coords[1])
                 coordinate2 = float(coords[0])
@@ -192,8 +189,8 @@ class GUI:
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
             elif type_combo.get() == "Traffic Volume" and year_combo.get() == "2018":
                 column_name = "VOLUME"
-                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = self.reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
                 coords = re.findall("\d+\.\d+", holding)
                 coordinate1 = float(coords[1])
                 coordinate2 = float(coords[0])
@@ -206,8 +203,8 @@ class GUI:
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2016":
                 column_name = "Count"
-                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = self.reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
                 coords = re.findall("\d+\.\d+", holding)
                 coordinate1 = float(coords[0])
                 coordinate2 = float(coords[1])
@@ -220,8 +217,8 @@ class GUI:
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2017":
                 column_name = "Count"
-                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = self.reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
                 coords = re.findall("\d+\.\d+", holding)
                 coordinate1 = float(coords[0])
                 coordinate2 = float(coords[1])
@@ -234,8 +231,8 @@ class GUI:
                 app.status_box_generator("Map HTML Successfully Generated", "green2")
             elif type_combo.get() == "Traffic Incidents" and year_combo.get() == "2018":
                 column_name = "Count"
-                max_count = reader_obj.get_max_count(self.tempSorted,column_name)
-                holding = reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
+                max_count = self.reader_obj.get_max_count(self.tempSorted,column_name)
+                holding = self.reader_obj.get_max_coords(self.tempSorted,max_count,column_name)
                 coords = re.findall("\d+\.\d+", holding)
                 coordinate1 = float(coords[0])
                 coordinate2 = float(coords[1])
@@ -260,10 +257,9 @@ class GUI:
 # TODO: Can we make the plot go away if we try to read new data?
     def insert_hist(self):
         try:
-            analyzer_object = rfd.Analyzer()
             list_x = ["2016", "2017", "2018"]
             if type_combo.get() == "Traffic Incidents":
-                data = {"Years": list_x, "Traffic Incidents": analyzer_object.read_all_traffic_incidents()}
+                data = {"Years": list_x, "Traffic Incidents": self.analyzer_object.read_all_traffic_incidents()}
                 df = DataFrame(data, columns=["Years", "Traffic Incidents"])
                 figure = plt.Figure(figsize=(1, 1), dpi=80)
                 ax1 = figure.add_subplot(111)
@@ -275,7 +271,7 @@ class GUI:
                 ax1.set_title('Year vs Traffic Incidents')
                 app.status_box_generator("Analysis Successfully Generated","green2")
             elif type_combo.get() == "Traffic Volume":
-                data = {"Years": list_x, "Traffic Volume": analyzer_object.read_all_traffic_volumes()}
+                data = {"Years": list_x, "Traffic Volume": self.analyzer_object.read_all_traffic_volumes()}
                 df = DataFrame(data, columns=["Years", "Traffic Volume"])
                 figure = plt.Figure(figsize=(1, 1), dpi=80)
                 ax1 = figure.add_subplot(111)
@@ -404,7 +400,7 @@ if __name__ == "__main__":
     clear_btn = tk.Button(  # Build Clear button
         relief="solid",
         master=frame_left,
-        text="Clear",
+        text="Clear Plot",
         activebackground="tomato",
         width=16,
         command = app.clear
