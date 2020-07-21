@@ -9,32 +9,27 @@ will be created.
 
 import tkinter as tk
 from tkinter import ttk
-from tkinter import *
-
 import matplotlib
-
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import pandas
+import matplotlib.pyplot as plt
 import read_from_db as rfd
 import pymongo
-from pymongo import MongoClient
 from pymongo import errors
 import folium
 import re
 from pandas import DataFrame
-import matplotlib.pyplot as plt
-import traceback
 
 
 class GUI:
 
     # gives objects we will need to use multiple times and in multiple locations
-    # full class scope so we don't need to create new ones everytime we need to do
+    # full class scope so we don't need to create new ones every time we need to do
     # something different
     def __init__(self):
         self.temp = None
         self.tempSorted = None
+        self.hist_flag = None
         self.analyzer_object = rfd.Analyzer()
         self.reader_obj = rfd.DBReader() 
 
@@ -137,24 +132,24 @@ class GUI:
         except Exception as e:
             app.status_box_generator("Unsuccessful Sort" + str(repr(e)), "firebrick1")
 
-    # Specifies column layout and headers depending on the combobox selections and physically builds
-    # the chart display from the dataframe data to the GUI.
-    #TODO: Josh, can you explain this code a block here, add some comments for each step
-    def tree_insert(self,df): #df is the data frame object
-        df_col = df.columns.values
-        tree["show"] = "headings"
-        tree["columns"] = df_col
-        counter = len(df)
+    # This function specifies column layout and headers depending on the combobox selections and physically builds
+    # the chart display from the dataframe data onto the GUI.
+    def tree_insert(self,df):           # df is the data frame object
+        if self.hist_flag:              # if statement that says if the self.hist_flag is True:
+            self.clear()                # run the self.clear() function to destroy the plot widget
+            self.hist_flag = False      # set the flag back to false. If self.hist_flag is False, then:
+        df_col = df.columns.values                  # df_col becomes a numpy array with the column header names inside
+        tree["show"] = "headings"                   # this line eliminates the index column from the data
+        tree["columns"] = df_col                    # specifies that the column headers will be the df_col values
+        rowLabels = df.index.tolist()               # specifies that the rowLabels will be a list of the row indices
+        for x in range(len(df_col)):                # starts a for loop for each column that says:
+            tree.column(x, width=int(1100 / len(df_col)))  # each column in the tree will have a constant width
+            tree.heading(x, text=df_col[x],
+                         anchor=tk.NW)              # each heading will be assigned their respective value from df_col
+            for i in range(len(df)):                # start a for loop for each row that says:
+                tree.insert('', i, text=rowLabels[i],values=df.iloc[i, :].tolist())  # each row will contain the values of the dataframe rows
+        tree.grid(row=0, column=1, sticky="nsew")
 
-        rowLabels = df.index.tolist()
-        for x in range(len(df_col)):
-
-            tree.column(x, width=80, minwidth=80)
-            tree.heading(x, text=df_col[x])
-            for i in range(counter):
-                tree.insert('', i, text=rowLabels[i], values=df.iloc[i,:].tolist())
-        tree.grid(row=0, column=1, sticky = "nsew")
-        
 
     # This function will get the max values for either traffic volume or traffic incidents, based
     # on year selected by user, and the corresponding coordinates, and write a marker to a folium
@@ -278,7 +273,10 @@ class GUI:
         except Exception as e:
             app.status_box_generator("Unsuccessful Map Generation:" + str(repr(e)), "firebrick1")
 
-# Function to insert an embedded histogram into the window
+    # Function to insert an embedded histogram into the window. This function uses list_x as labels for the x-axis, which
+    # never changes. The if statements depend on the values that is picked from the first combobox. The data that will be
+    # used for the plot is put into a dictionary called data. The class object self.bar1 is created and made into a widget,
+    # and the plot is displayed inside the right frame.
     def insert_hist(self):
         try:
             list_x = ["2016", "2017", "2018"]
@@ -287,28 +285,30 @@ class GUI:
                 df = DataFrame(data, columns=["Years", "Traffic Incidents"])
                 figure = plt.Figure(figsize=(1, 1), dpi=80)
                 ax1 = figure.add_subplot(111)
-                ax1.set_ylabel("Incidents")
+                ax1.set_ylabel("Maximum Incidents")
                 self.bar1 = FigureCanvasTkAgg(figure, master=frame_right)
                 self.bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
                 df = df[['Years', 'Traffic Incidents']].groupby('Years').sum()
                 df.plot(kind='bar', legend=True, ax=ax1)
-                ax1.set_title('Year vs Traffic Incidents')
+                ax1.set_title('Year vs Maximum Traffic Incidents')
                 app.status_box_generator("Analysis Successfully Generated","green2")
+                self.hist_flag = True
             elif type_combo.get() == "Traffic Volume":
                 data = {"Years": list_x, "Traffic Volume": self.analyzer_object.read_all_traffic_volumes()}
                 df = DataFrame(data, columns=["Years", "Traffic Volume"])
                 figure = plt.Figure(figsize=(1, 1), dpi=80)
                 ax1 = figure.add_subplot(111)
-                ax1.set_ylabel("Volume")
-                ax1.ticklabel_format(useOffset=False, style='plain')            # gets rid of scientific notation
+                ax1.set_ylabel("Maximum Volume")
                 self.bar1 = FigureCanvasTkAgg(figure, master=frame_right)
                 self.bar1.get_tk_widget().grid(row=0, column=1, sticky="nsew")
                 df = df[['Years', 'Traffic Volume']].groupby('Years').sum()
                 df.plot(kind='bar', legend=True, ax=ax1)
-                ax1.set_title('Year vs Traffic Volumes')
+                ax1.set_title('Year vs Maximum Traffic Volumes')
                 app.status_box_generator("Analysis Successfully Generated","green2")
+                self.hist_flag = True
             elif type_combo.get() == "":
                 app.status_box_generator("Must select data in both dropdown boxes.", "firebrick1")
+        # Error handling statements
         except NameError:
             app.status_box_generator("Error with data in database.", "firebrick1")
         except KeyError:
@@ -318,6 +318,8 @@ class GUI:
         except Exception as e:
             app.status_box_generator("Unsuccessful Analysis: " + str(repr(e)),"firebrick1")
 
+    # This function builds the status box in the bottom left corner of the GUI. It takes a message and a color as parameters.
+    # It is implemented in every function to indicate successes or failures.
     def status_box_generator(self, message, color):
         status_box = tk.Label(
             master=frame_left,
@@ -330,8 +332,8 @@ class GUI:
         )
         status_box.grid(row=8, column=0, padx=5, pady=5, sticky="n")
     
-    # This function will clear the widget object created to display the bar plot when the Analysis button
-    # is clicked.
+    # This function will clear the widget object created to display the bar plot when the read or sort buttons
+    # are clicked.
     def clear(self):
         self.bar1.get_tk_widget().destroy()
 
@@ -340,6 +342,7 @@ if __name__ == "__main__":
     # Instantiate the GUI class
     app = GUI()
 
+    # Build the main window
     window = tk.Tk()
     window.title("Traffic Analysis")
     window.columnconfigure([0, 1], weight=1)
@@ -347,15 +350,16 @@ if __name__ == "__main__":
     window.geometry("1300x500")
     window.propagate(False)
 
+    # Build the left frame, which will hold all the buttons
     frame_left = tk.Frame(master=window, width=100, height=400,
-                          bg="gray55")  # build the left frame that will hold all the buttons
+                          bg="gray55")
     frame_left.columnconfigure(0, weight=1, minsize=200)
     frame_left.rowconfigure([0, 8], weight=1, minsize=100)
     frame_left.grid(column=0, sticky="nsew")
     frame_left.grid_propagate(False)
 
-
-    frame_right = tk.Frame(master=window, width=1000, height=400)  # build the right frame that will hold all the data
+    # Build the right frame that will hold all the data
+    frame_right = tk.Frame(master=window, width=1000, height=400)
     frame_right.columnconfigure(1, weight=1)
     frame_right.rowconfigure(0, weight=1)
     frame_right.grid(row=0, column=1, sticky="nsew")
@@ -364,7 +368,7 @@ if __name__ == "__main__":
     # Instantiate the tree object
     tree = ttk.Treeview(frame_right)
 
-
+    # Build the comboboxes and buttons that will be held in the left frame
     type_combo = ttk.Combobox(
         values=["Traffic Volume", "Traffic Incidents"],  # Data type combobox
         justify="center",
@@ -386,7 +390,7 @@ if __name__ == "__main__":
         master=frame_left,
         text="Read",
         width=16,
-        activebackground="tomato",
+        activebackground="bisque",
         command= app.data_types
     )
     read_btn.grid(row=2, column=0, padx=5, pady=5)
@@ -395,7 +399,7 @@ if __name__ == "__main__":
         relief="solid",
         master=frame_left,
         text="Sort",
-        activebackground="tomato",
+        activebackground="bisque",
         width=16,
         command = app.data_sort
     )
@@ -405,7 +409,7 @@ if __name__ == "__main__":
         relief="solid",
         master=frame_left,
         text="Analysis",
-        activebackground="tomato",
+        activebackground="bisque",
         width=16,
         command=app.insert_hist
     )
@@ -415,21 +419,11 @@ if __name__ == "__main__":
         relief="solid",
         master=frame_left,
         text="Map",
-        activebackground="tomato",
+        activebackground="bisque",
         width=16,
         command = app.draw_map
     )
     map_btn.grid(row=5, column=0, padx=5, pady=5)
-
-    clear_btn = tk.Button(  # Build Clear button
-        relief="solid",
-        master=frame_left,
-        text="Clear Plot",
-        activebackground="tomato",
-        width=16,
-        command = app.clear
-    )
-    clear_btn.grid(row=6, column=0, padx=5, pady=5)
 
     status_label = tk.Label(  # Build status label
         master=frame_left,
@@ -438,7 +432,6 @@ if __name__ == "__main__":
     )
     status_label.grid(row=7, column=0, padx=5, sticky="w")
 
-    #TODO: Need to build Status box functionality
     app.status_box_generator("","white")
 
     window.mainloop()
