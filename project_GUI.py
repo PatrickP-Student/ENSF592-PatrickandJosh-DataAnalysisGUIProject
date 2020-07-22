@@ -137,7 +137,6 @@ class GUI:
     def tree_insert(self,df):           # df is the data frame object
         if self.hist_flag:              # if statement that says if the self.hist_flag is True:
             self.clear()                # run the self.clear() function to destroy the plot widget
-            self.hist_flag = False      # set the flag back to false. If self.hist_flag is False, then:
         df_col = df.columns.values                  # df_col becomes a numpy array with the column header names inside
         tree["show"] = "headings"                   # this line eliminates the index column from the data
         tree["columns"] = df_col                    # specifies that the column headers will be the df_col values
@@ -278,6 +277,8 @@ class GUI:
     # used for the plot is put into a dictionary called data. The class object self.bar1 is created and made into a widget,
     # and the plot is displayed inside the right frame.
     def insert_hist(self):
+        if self.hist_flag:              # if statement that says if the self.hist_flag is True:
+            self.clear()                # run the self.clear() function to destroy the plot widget
         try:
             list_x = ["2016", "2017", "2018"]
             if type_combo.get() == "Traffic Incidents":
